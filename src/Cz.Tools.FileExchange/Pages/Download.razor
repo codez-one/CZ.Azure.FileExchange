@@ -1,0 +1,62 @@
+﻿@page "/download"
+@using Azure.Storage.Blobs
+@using Azure.Storage.Blobs.Models
+@inject HttpClient http
+
+<h1>Download</h1>
+
+<input type="text" @bind-value=Code/>
+<button	class="btn btn-primary" @onclick="LoadFiles">Load files</button>
+
+<div class="container">
+	@foreach (var blob in blobs)
+	{
+		<div class="row">
+			<div class="col-6">
+				@blob.Name
+			</div>
+			<div class="col-3">
+				@blob.Properties.ContentLength / 1024 / 1024
+			</div>
+			<div class="col-3">
+				<a href="@GetFileLink(blob.Name)">Download</a>
+			</div>
+		</div>
+	}
+</div>
+
+@code {
+	private string Code { get; set; }
+	private List<BlobItem> blobs = new();
+	Uri? SasUrl;
+	private async Task LoadFiles()
+	{
+		if (string.IsNullOrWhiteSpace(Code))
+		{
+			throw new Exception("You must enter a code");
+		}
+		if (SasUrl == null)
+		{
+			SasUrl = new Uri(await http.GetStringAsync($"api/GenerateSas?code={Code}"));
+		}
+		if (SasUrl is null)
+		{
+			throw new Exception("Sas uri is null");
+		}
+		var blobContainerClient = new BlobContainerClient(SasUrl);
+		await foreach(var singleBlob in blobContainerClient.GetBlobsAsync())
+		{
+			blobs.Add(singleBlob);
+		}
+
+	}
+	private string GetFileLink(string blobName)
+	{
+		if (SasUrl is null)
+		{
+			throw new Exception("Sas uri is null");
+		}
+		var parts = SasUrl.ToString().Split('?');
+		return $"{parts[0]}/{blobName}?{parts[1]}";
+	}
+}

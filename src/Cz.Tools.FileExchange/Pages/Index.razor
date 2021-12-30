@@ -1,0 +1,98 @@
+﻿@page "/"
+@using Azure.Storage.Blobs
+@using Azure.Storage.Blobs.Models
+@using Cz.Tools.FileExchange.Components
+@inject HttpClient http
+
+<PageTitle>FileExchange</PageTitle>
+
+<h1>Upload</h1>
+
+here you can upload your files.
+
+@if(SasUrl != null)
+{
+	<div>Code to download your files again: <span>@SasUrl.AbsolutePath.Replace("/", "")</span></div>
+}
+
+<InputFile aria-label="Select files to Upload" OnChange="@LoadFiles" multiple />
+
+<div class="container">
+	@foreach (var file in files)
+	{
+		<div class="row">
+			<FileProgress Name="@file.Name" ProcessedSize="@file.ProcessedSize" Size="@file.BrowserFile.Size"></FileProgress>
+		</div>
+	}
+</div>
+
+<button class="btn btn-primary" @onclick="StartUpload">Start upload</button>
+
+@code {
+	List<File> files = new();
+	Uri? SasUrl;
+	private void LoadFiles(InputFileChangeEventArgs e)
+	{
+		foreach (var file in e.GetMultipleFiles())
+		{
+			var fileModel = new File()
+				{
+					Name = file.Name,
+					BrowserFile = file
+				};
+
+			files.Add(fileModel);
+		}
+
+	}
+
+	private async Task StartUpload()
+	{
+		if (SasUrl == null)
+		{
+			SasUrl = new Uri(await http.GetStringAsync("api/GenerateSas"));	
+		}
+		if (SasUrl is null)
+		{
+			throw new Exception("Sas uri is null");
+		}
+		var blobContainerClient = new BlobContainerClient(SasUrl);
+		Parallel.ForEach(files.Where(f => f.ProcessedSize != f.BrowserFile.Size), async f =>
+		{
+			var blobClient = blobContainerClient.GetBlobClient(f.BrowserFile.Name);
+			await blobClient.UploadAsync(
+				f.BrowserFile.OpenReadStream(long.MaxValue),
+				new BlobUploadOptions()
+					{
+						ProgressHandler = new ProgressHandler(this, f)
+					}
+			);
+		});
+	}
+
+	class File
+	{
+		public string Name { get; set; }
+		public IBrowserFile BrowserFile { get; set; }
+		public long ProcessedSize { get; set; }
+	}
+
+	private class ProgressHandler : IProgress<long>
+	{
+		private readonly Index pageRef;
+		private readonly File file;
+		private readonly long size;
+
+		public ProgressHandler(Index pageRef, File file)
+		{
+			this.pageRef = pageRef;
+			this.file = file;
+		}
+		void IProgress<long>.Report(long value)
+		{
+			file.ProcessedSize = value;
+			pageRef.StateHasChanged();
+
+		}
+	}
+}

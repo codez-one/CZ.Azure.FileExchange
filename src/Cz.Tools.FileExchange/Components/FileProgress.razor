@@ -1,0 +1,59 @@
+﻿
+<div class="col-6">
+	@Name
+</div>
+<div class="col-5">
+	<progress value="@ProcessedSize" max="@Size">@Progress%</progress>
+</div>
+<div class="col-1">
+	@switch (State)
+	{
+		case UploadState.NotStarted:
+			<span style="color:gray;">||</span>
+			break;
+		case UploadState.InProgrogress:
+			<span style="color:green;">▶</span>
+			break;
+		case UploadState.Succeeded:
+			<span style="color:green;">✔</span>
+			break;
+		case UploadState.Failed:
+			<span style="color:red;">❗</span>
+			break;
+	}
+</div>
+
+@code {
+	[Parameter]
+	public string Name { get; set; }
+	[Parameter]
+	public long ProcessedSize { get; set; }
+	[Parameter]
+	public long Size { get; set; }
+	private UploadState State { get; set; } = UploadState.NotStarted;
+	public int Progress
+	{
+		get
+		{
+			decimal percent = Decimal.Divide(ProcessedSize, Size) * 100;
+			percent = Decimal.Round(percent);
+			if(percent < 100 && percent > 0)
+			{
+				State = UploadState.InProgrogress;
+			}
+			if(percent >= 100)
+			{
+				State = UploadState.Succeeded;
+			}
+			return Convert.ToInt32(percent);
+		}
+	}
+	private enum UploadState
+	{
+		NotStarted,
+		InProgrogress,
+		Succeeded,
+		Failed
+	}
+}
+
