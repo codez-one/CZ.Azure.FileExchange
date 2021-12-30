@@ -13,5 +13,22 @@ This can be used on the download page:
 ## Deployment
 
 - compile the `main.bicep` file
-- then configure your azure devops pipeline for static websites
+- deploy it to azure
+
+### Build App
+
+```powershell
+dotnet publish .\src\Cz.Tools.FileExchange\ -o temp/fe
+dotnet publish .\src\Cz.Tools.FileExchange.Api\ -o temp/api
+```
+
+### Publish the App
+
+```powershell
+$tempPath = "$PWD\temp\:/build";
+docker run -it --rm -v $tempPath mcr.microsoft.com/appsvc/staticappsclient:stable /bin/staticsites/StaticSitesClient --verbose --app /build/fe/wwwroot  --api /build/api/ --skipAppBuild true --apiToken $AZURE_STATICSITE_TOKEN --deploymentaction upload
+```
+
+> Important: You must configure your storage account with the cors ruls, so it accepts request from your static websites hostname....
+
 - enjoy
