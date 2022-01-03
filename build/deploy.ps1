@@ -69,7 +69,8 @@ $metaDeployInforamtion.PollingInfo = @{
 };
 $metaDeployInforamtionBody = ConvertTo-Json -InputObject $metaDeployInforamtion;
 $metaDeployInforamtionBody;
-if ($null -ne $response.response.packageUris.api) {
+if ($null -ne $response.response.packageUris.api -and
+    [string]::IsNullOrWhiteSpace($response.response.packageUris.api) -eq $false) {
     $blobGuid = (New-Guid).Guid.ToString();
     Invoke-WebRequest -Method Put -Uri $response.response.packageUris.api -InFile $workingDir/api.zip -Headers @{
         "x-ms-blob-type"                = "BlockBlob";
@@ -82,7 +83,8 @@ if ($null -ne $response.response.packageUris.api) {
 else {
     Write-Verbose "skipping the upload of the api.";
 }
-if ($null -ne $response.response.packageUris.app) {
+if ($null -ne $response.response.packageUris.app -and
+    [string]::IsNullOrWhiteSpace($response.response.packageUris.app) -eq $false) {
     $blobGuid = (New-Guid).Guid.ToString();
     Invoke-WebRequest -Method Put -Uri $response.response.packageUris.app -InFile $workingDir/app.zip -Headers @{
         "x-ms-blob-type"                = "BlockBlob";
