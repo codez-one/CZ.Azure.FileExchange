@@ -15,11 +15,11 @@ param (
     # Set a custom working directory.
     [Parameter(Mandatory=$false)]
     [string]
-    $workingDir = ".\temp\temp\"
+    $workingDir = "$pwd\temp\temp\"
 )
 New-Item -ItemType Directory -Force $workingDir;
-Compress-Archive "$apiPath\*" -DestinationPath $workingDir/api.zip;
-Compress-Archive "$appPath\*" -DestinationPath $workingDir/app.zip;
+Compress-Archive "$apiBuildOutput\*" -DestinationPath $workingDir/api.zip;
+Compress-Archive "$appBuildOutput\*" -DestinationPath $workingDir/app.zip;
 $apiHash = (Get-FileHash $workingDir/api.zip -Algorithm MD5).Hash;
 
 $hostname = "content-am2.infrastructure.azurestaticapps.net";
