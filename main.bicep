@@ -7,6 +7,9 @@ resource storage 'Microsoft.Storage/storageAccounts@2021-06-01' = {
   sku: {
     name: 'Standard_LRS'
   }
+  properties: {
+
+  }
 }
 
 resource website 'Microsoft.Web/staticSites@2021-02-01' = {
