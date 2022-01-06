@@ -1,11 +1,6 @@
-using System.Globalization;
 using System;
-using System.IO;
 using System.Net;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
-using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -13,7 +8,6 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
 using Azure.Storage.Blobs;
 using Azure.Storage.Sas;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Extensions;
@@ -32,7 +26,7 @@ namespace Cz.Tools.FileExchange.Api
 
         [FunctionName("GenerateSas")]
         [OpenApiOperation(operationId: "Run")]
-        [OpenApiParameter(name: "code", In = ParameterLocation.Query, Required = false, Type = typeof(string), Description = "The **code** parameter, that represent to get read access to stored files")]
+        [OpenApiParameter(name: "filecode", In = ParameterLocation.Query, Required = false, Type = typeof(string), Description = "The **code** parameter, that represent to get read access to stored files")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(string), Description = "The OK response")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req)
@@ -41,7 +35,7 @@ namespace Cz.Tools.FileExchange.Api
 
             var blobservice = new BlobServiceClient(GetEnvironmentVariable("StorageConnectionString"));
             BlobContainerClient? blobContainerClient = null;
-            if(req.Query.TryGetValue("code", out var code))
+            if(req.Query.TryGetValue("filecode", out var code))
             {
                 blobContainerClient = blobservice.GetBlobContainerClient(code);
             }

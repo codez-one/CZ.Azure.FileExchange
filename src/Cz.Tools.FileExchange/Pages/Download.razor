@@ -37,7 +37,7 @@
 		}
 		if (SasUrl == null)
 		{
-			SasUrl = new Uri(await http.GetStringAsync($"api/GenerateSas?code={Code}"));
+			SasUrl = new Uri(await http.GetStringAsync($"api/GenerateSas?filecode={Code}"));
 		}
 		if (SasUrl is null)
 		{
