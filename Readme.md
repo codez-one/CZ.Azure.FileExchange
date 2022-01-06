@@ -18,6 +18,7 @@ This can be used on the download page:
 ### Build App
 
 ```powershell
+dotnet build
 dotnet publish .\src\Cz.Tools.FileExchange\ -o temp/fe
 dotnet publish .\src\Cz.Tools.FileExchange.Api\ -o temp/api
 ```
@@ -25,8 +26,8 @@ dotnet publish .\src\Cz.Tools.FileExchange.Api\ -o temp/api
 ### Publish the App
 
 ```powershell
-$tempPath = "$PWD\temp\:/build";
-docker run -it --rm -v $tempPath mcr.microsoft.com/appsvc/staticappsclient:stable /bin/staticsites/StaticSitesClient --verbose --app /build/fe/wwwroot  --api /build/api/ --skipAppBuild true --apiToken $AZURE_STATICSITE_TOKEN --deploymentaction upload
+$token = Read-Host -MaskInput;
+./build/deploy.ps1 -Token $token -appBuildOutput ./temp/fe/wwwroot/ -apiBuildOutput ./temp/api/
 ```
 
 > Important: You must configure your storage account with the cors ruls, so it accepts request from your static websites hostname....
