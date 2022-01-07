@@ -14,7 +14,14 @@
 	},
 
 	// Set *default* container specific settings.json values on container create.
-	"settings": {},
+	"settings": {
+		"dotnetAcquisitionExtension.existingDotnetPath": [
+			{
+				"extensionId": "ms-azuretools.vscode-bicep",
+				"path": "/usr/share/dotnet/dotnet"
+			}
+		]
+	},
 
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
