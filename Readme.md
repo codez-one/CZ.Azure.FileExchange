@@ -1,4 +1,4 @@
-# Cz.Tools.FileExchange
+# CZ.Azure.FileExchange
 
 This project provides a website to share fast files with the help of azure.
 You get an upload website that looks like this:
@@ -19,8 +19,8 @@ This can be used on the download page:
 
 ```powershell
 dotnet build
-dotnet publish .\src\Cz.Tools.FileExchange\ -o temp/fe
-dotnet publish .\src\Cz.Tools.FileExchange.Api\ -o temp/api
+dotnet publish .\src\CZ.Azure.FileExchange\ -o temp/fe
+dotnet publish .\src\CZ.Azure.FileExchange.Api\ -o temp/api
 ```
 
 ### Publish the App

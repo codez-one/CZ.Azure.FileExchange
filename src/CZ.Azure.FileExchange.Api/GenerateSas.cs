@@ -13,7 +13,7 @@ using Azure.Storage.Sas;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Extensions;
 using System.Net.Http;
 
-namespace Cz.Tools.FileExchange.Api
+namespace CZ.Azure.FileExchange.Api
 {
     public class GenerateSas
     {

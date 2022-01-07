@@ -1,4 +1,4 @@
-using Cz.Tools.FileExchange;
+using CZ.Azure.FileExchange;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 

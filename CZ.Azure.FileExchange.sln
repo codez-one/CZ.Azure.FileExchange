@@ -3,12 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.31911.260
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cz.Tools.FileExchange", "src\Cz.Tools.FileExchange\Cz.Tools.FileExchange.csproj", "{F5DB4425-80C4-4553-9605-37AE82648AC8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CZ.Azure.FileExchange", "src\CZ.Azure.FileExchange\CZ.Azure.FileExchange.csproj", "{F5DB4425-80C4-4553-9605-37AE82648AC8}"
 	ProjectSection(ProjectDependencies) = postProject
 		{249DF799-1F70-42DD-9508-1C3F44FD0227} = {249DF799-1F70-42DD-9508-1C3F44FD0227}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cz.Tools.FileExchange.Api", "src\Cz.Tools.FileExchange.Api\Cz.Tools.FileExchange.Api.csproj", "{249DF799-1F70-42DD-9508-1C3F44FD0227}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CZ.Azure.FileExchange.Api", "src\CZ.Azure.FileExchange.Api\CZ.Azure.FileExchange.Api.csproj", "{249DF799-1F70-42DD-9508-1C3F44FD0227}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
