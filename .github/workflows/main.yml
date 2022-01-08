@@ -43,3 +43,14 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }}
           action: "close"
+  compile_bicep:
+    runs-on: 'ubuntu-latest'
+    name: compile main bicep
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: compile bicep
+        uses: Azure/bicep-build-action@v1.0.0
+        with:
+          bicepFilePath: main.bicep
