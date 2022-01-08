@@ -50,5 +50,4 @@ jobs:
       - name: compile bicep
         uses: Azure/bicep-build-action@v1.0.0
         with:
-          bicepFilePath: "main.bicep"
-      
+          bicepFilePath: main.bicep
