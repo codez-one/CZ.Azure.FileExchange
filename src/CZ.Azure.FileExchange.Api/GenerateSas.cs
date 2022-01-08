@@ -35,18 +35,19 @@ namespace CZ.Azure.FileExchange.Api
 
             var blobservice = new BlobServiceClient(GetEnvironmentVariable("StorageConnectionString"));
             BlobContainerClient? blobContainerClient = null;
+            Uri uri = null;
             if(req.Query.TryGetValue("filecode", out var code))
             {
                 blobContainerClient = blobservice.GetBlobContainerClient(code);
+                uri = GetServiceSasUriForContainer(blobContainerClient, BlobSasPermissions.Read | BlobSasPermissions.List);
             }
             else
             {
                 var response = await blobservice.CreateBlobContainerAsync(Guid.NewGuid().ToString());
                 response.ThrowIfNullOrDefault();
                 blobContainerClient = response.Value;
+                uri = GetServiceSasUriForContainer(blobContainerClient);
             }
-            
-            var uri = GetServiceSasUriForContainer(blobContainerClient);
             if (uri == null)
             {
                 _logger.LogError("Failed to generate the Sas token");
