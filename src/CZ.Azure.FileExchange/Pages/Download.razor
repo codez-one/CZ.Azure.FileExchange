@@ -16,10 +16,7 @@
 				@blob.Name
 			</div>
 			<div class="col-3">
-				@{
-					var size = blob.Properties.ContentLength / 1024 / 1024;
-				}
-				@size MB
+				@AutoFileSize(blob.Properties.ContentLength)
 			</div>
 			<div class="col-3">
 				<a href="@GetFileLink(blob.Name)">Download</a>
@@ -61,5 +58,24 @@
 		}
 		var parts = SasUrl.ToString().Split('?');
 		return $"{parts[0]}/{blobName}?{parts[1]}";
+	}
+	/// <summary>
+	/// Formats from bytes to KB,MB,GB,TB 
+	/// stolen from: https://pastebin.com/x17NfmNJ
+	/// </summary>
+	/// <param name="number">Bytes to format</param>
+	/// <returns></returns>
+	public static string AutoFileSize(long? number)
+    {
+		if(number == null){
+			return "0 KB";
+		}
+		double tmp = System.Convert.ToDouble(number.Value);
+		string suffix = " B ";
+		if (tmp > 1024) { tmp = tmp / 1024; suffix = " KB"; }
+		if (tmp > 1024) { tmp = tmp / 1024; suffix = " MB"; }
+		if (tmp > 1024) { tmp = tmp / 1024; suffix = " GB"; }
+		if (tmp > 1024) { tmp = tmp / 1024; suffix = " TB"; }
+		return tmp.ToString("n") + suffix;
 	}
 }
