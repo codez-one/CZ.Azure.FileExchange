@@ -16,7 +16,10 @@
 				@blob.Name
 			</div>
 			<div class="col-3">
-				@blob.Properties.ContentLength / 1024 / 1024
+				@{
+					var size = blob.Properties.ContentLength / 1024 / 1024;
+				}
+				@size MB
 			</div>
 			<div class="col-3">
 				<a href="@GetFileLink(blob.Name)">Download</a>
@@ -26,7 +29,7 @@
 </div>
 
 @code {
-	private string Code { get; set; }
+	private string Code { get; set; } = string.Empty;
 	private List<BlobItem> blobs = new();
 	Uri? SasUrl;
 	private async Task LoadFiles()
