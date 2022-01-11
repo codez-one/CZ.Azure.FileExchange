@@ -76,12 +76,16 @@ stages:
               archiveType: zip
               rootFolderOrFile: $(Pipeline.Workspace)/drop/fe/wwwroot/
               archiveFile: frontend.zip
+              includeRootFolder: true
+              replaceExistingArchive: true
           - task: ArchiveFiles@2
             displayName: 'archive backend'
             inputs:
               archiveType: zip
               rootFolderOrFile: $(Pipeline.Workspace)/drop/api/
               archiveFile: api.zip
+              includeRootFolder: true
+              replaceExistingArchive: true
           - task: GitHubRelease@1
             displayName: 'release to github'
             inputs:
