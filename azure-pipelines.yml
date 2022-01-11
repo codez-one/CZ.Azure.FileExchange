@@ -40,17 +40,19 @@ stages:
       inputs:
         command: 'publish'
         projects: |
-          $(workingDirectory)/src/CZ.Azure.FileExchange/CZ.Azure.FileExchange.csproj
+          CZ.Azure.FileExchange.csproj
         arguments: --output fe/ --configuration Release
         zipAfterPublish: false
+        workingDirectory: $(workingDirectory)/src/CZ.Azure.FileExchange/
     - task: DotNetCoreCLI@2
       displayName: Publish api
       inputs:
         command: 'publish'
         projects: |
-          $(workingDirectory)/src/CZ.Azure.FileExchange.Api/CZ.Azure.FileExchange.Api.csproj
+          CZ.Azure.FileExchange.Api.csproj
         arguments: --output api/ --configuration Release
         zipAfterPublish: false
+        workingDirectory: $(workingDirectory)/src/CZ.Azure.FileExchange.Api/
     - script: 'az bicep build --file $(workingDirectory)/main.bicep --outfile $(Build.ArtifactStagingDirectory)/azuredeploy.json'
       displayName: build bicep file
     - task: ArchiveFiles@2
