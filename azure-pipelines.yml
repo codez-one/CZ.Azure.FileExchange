@@ -39,8 +39,7 @@ stages:
       displayName: Publish frontend
       inputs:
         command: 'publish'
-        projects: |
-          CZ.Azure.FileExchange.csproj
+        projects: CZ.Azure.FileExchange.csproj
         arguments: --output fe/ --configuration Release
         zipAfterPublish: false
         workingDirectory: $(workingDirectory)/src/CZ.Azure.FileExchange/
@@ -48,9 +47,8 @@ stages:
       displayName: Publish api
       inputs:
         command: 'publish'
-        projects: |
-          CZ.Azure.FileExchange.Api.csproj
-        arguments: --output api/ --configuration Release
+        projects: CZ.Azure.FileExchange.Api.csproj
+        arguments: --output api --configuration Release
         zipAfterPublish: false
         workingDirectory: $(workingDirectory)/src/CZ.Azure.FileExchange.Api/
     - script: 'az bicep build --file $(workingDirectory)/main.bicep --outfile $(Build.ArtifactStagingDirectory)/azuredeploy.json'
