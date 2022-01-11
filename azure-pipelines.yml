@@ -11,7 +11,7 @@ variables:
   vmImageName: 'ubuntu-latest'
 
   # Working Directory
-  workingDirectory: '$(System.DefaultWorkingDirectory)/src/CZ.Azure.FileExchange.Api'
+  workingDirectory: '$(System.DefaultWorkingDirectory)/'
 
 stages:
 - stage: Build
