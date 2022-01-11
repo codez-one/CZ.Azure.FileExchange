@@ -74,7 +74,7 @@ stages:
             displayName: 'release to github'
             inputs:
               assets: |
-                $(Pipeline.Workspace)/drop/api/**/*.zip
+                $(Pipeline.Workspace)/drop/**/*.zip
                 $(Pipeline.Workspace)/drop/azuredeploy.json
               repositoryName: $(Build.Repository.Name)
               assetUploadMode: replace
