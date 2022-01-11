@@ -40,7 +40,7 @@ stages:
       inputs:
         command: 'publish'
         projects: CZ.Azure.FileExchange.csproj
-        arguments: --output fe/ --configuration Release
+        arguments: --output $(workingDirectory)/fe/ --configuration Release
         zipAfterPublish: false
         workingDirectory: $(workingDirectory)/src/CZ.Azure.FileExchange/
     - task: DotNetCoreCLI@2
@@ -48,7 +48,7 @@ stages:
       inputs:
         command: 'publish'
         projects: CZ.Azure.FileExchange.Api.csproj
-        arguments: --output api --configuration Release
+        arguments: --output $(workingDirectory)/api --configuration Release
         zipAfterPublish: false
         workingDirectory: $(workingDirectory)/src/CZ.Azure.FileExchange.Api/
     - script: 'az bicep build --file $(workingDirectory)/main.bicep --outfile $(Build.ArtifactStagingDirectory)/azuredeploy.json'
@@ -59,7 +59,7 @@ stages:
         archiveFile: $(Build.ArtifactStagingDirectory)/Frontend.zip
         archiveType: zip
         includeRootFolder: false
-        rootFolderOrFile: fe/CZ.Azure.FileExchange/wwwroot/
+        rootFolderOrFile: $(workingDirectory)/fe/CZ.Azure.FileExchange/wwwroot/
         replaceExistingArchive: true
     - task: ArchiveFiles@2
       displayName: archive api
@@ -67,7 +67,7 @@ stages:
         archiveFile: $(Build.ArtifactStagingDirectory)/API.zip
         archiveType: zip
         includeRootFolder: false
-        rootFolderOrFile: api/CZ.Azure.FileExchange/
+        rootFolderOrFile: $(workingDirectory)/api/CZ.Azure.FileExchange/
         replaceExistingArchive: true
     - task: PublishBuildArtifacts@1
       inputs:
