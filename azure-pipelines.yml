@@ -51,8 +51,11 @@ stages:
         arguments: --output $(Build.ArtifactStagingDirectory)/api/ --configuration Release
     - script: 'az bicep build --file $(workingDirectory)/main.bicep --outfile $(Build.ArtifactStagingDirectory)/azuredeploy.json'
       displayName: build bicep file
-    - publish: $(Build.ArtifactStagingDirectory)/
-      artifact: drop
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: Container
 
 - stage: Release
   displayName: Release to github
