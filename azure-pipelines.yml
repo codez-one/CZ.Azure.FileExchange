@@ -74,8 +74,8 @@ stages:
             displayName: 'release to github'
             inputs:
               assets: |
-                *.zip
-                azuredeploy.json
+                $(Pipeline.Workspace)/drop/api/**/*.zip
+                $(Pipeline.Workspace)/drop/azuredeploy.json
               repositoryName: $(Build.Repository.Name)
               assetUploadMode: replace
               title: "new version"
