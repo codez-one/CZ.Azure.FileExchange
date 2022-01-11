@@ -59,7 +59,7 @@ stages:
         archiveFile: $(Build.ArtifactStagingDirectory)/Frontend.zip
         archiveType: zip
         includeRootFolder: false
-        rootFolderOrFile: fe/wwwroot/
+        rootFolderOrFile: fe/CZ.Azure.FileExchange/wwwroot/
         replaceExistingArchive: true
     - task: ArchiveFiles@2
       displayName: archive api
@@ -67,7 +67,7 @@ stages:
         archiveFile: $(Build.ArtifactStagingDirectory)/API.zip
         archiveType: zip
         includeRootFolder: false
-        rootFolderOrFile: api/
+        rootFolderOrFile: api/CZ.Azure.FileExchange/
         replaceExistingArchive: true
     - task: PublishBuildArtifacts@1
       inputs:
