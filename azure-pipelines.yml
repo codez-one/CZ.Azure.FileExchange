@@ -4,17 +4,11 @@
 # https://docs.microsoft.com/en-us/azure/devops/pipelines/languages/dotnet-core
 
 trigger:
-- main
+  - main
 
 variables:
-  # Azure Resource Manager connection created during pipeline creation
-  azureSubscription: '1ea717aa-34bc-439b-9cf5-4bbc2a6160dc'
-
-  # Function app name
-  functionAppName: ''
-
   # Agent VM image name
-  vmImageName: 'vs2017-win2016'
+  vmImageName: 'ubuntu-latest'
 
   # Working Directory
   workingDirectory: '$(System.DefaultWorkingDirectory)/src/CZ.Azure.FileExchange.Api'
@@ -35,23 +29,31 @@ stages:
       inputs:
         command: 'build'
         projects: |
-          $(workingDirectory)/*.csproj
-        arguments: --output $(System.DefaultWorkingDirectory)/publish_output --configuration Release
-
-    - task: ArchiveFiles@2
-      displayName: 'Archive files'
+          $(workingDirectory)/*.sln
+        arguments: --configuration Release
+    - task: DotNetCoreCLI@2
+      displayName: Publish frontend
       inputs:
-        rootFolderOrFile: '$(System.DefaultWorkingDirectory)/publish_output'
-        includeRootFolder: false
-        archiveType: zip
-        archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
-        replaceExistingArchive: true
-
-    - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+        command: 'publish'
+        projects: |
+          $(workingDirectory)/src/CZ.Azure.FileExchange/
+        arguments: --output $(Build.ArtifactStagingDirectory)/fe/ --configuration Release
+    - task: DotNetCoreCLI@2
+      displayName: Publish api
+      inputs:
+        command: 'publish'
+        projects: |
+          $(workingDirectory)/src/CZ.Azure.FileExchange.Api/
+        arguments: --output $(Build.ArtifactStagingDirectory)/api/ --configuration Release
+    - task: Bash@3
+      displayName: build bicep file
+      inputs:
+        script: 'az bicep build --file main.bicep --outfile $(Build.ArtifactStagingDirectory)/azuredeploy.json'
+    - publish: $(Build.ArtifactStagingDirectory)/
       artifact: drop
 
-- stage: Deploy
-  displayName: Deploy stage
+- stage: Release
+  displayName: Release to github
   dependsOn: Build
   condition: succeeded()
 
@@ -65,12 +67,32 @@ stages:
     strategy:
       runOnce:
         deploy:
-
           steps:
-          - task: AzureFunctionApp@1
-            displayName: 'Azure functions app deploy'
+          - task: ArchiveFiles@2
+            displayName: 'archive frontend'
             inputs:
-              azureSubscription: '$(azureSubscription)'
-              appType: functionApp
-              appName: $(functionAppName)
-              package: '$(Pipeline.Workspace)/drop/$(Build.BuildId).zip'
+              archiveType: zip
+              rootFolderOrFile: $(Pipeline.Workspace)/drop/fe/wwwroot/
+              archiveFile: frontend.zip
+          - task: ArchiveFiles@2
+            displayName: 'archive backend'
+            inputs:
+              archiveType: zip
+              rootFolderOrFile: $(Pipeline.Workspace)/drop/api/
+              archiveFile: api.zip
+          - task: GitHubRelease@1
+            displayName: 'release to github'
+            inputs:
+              assets: |
+                *.zip
+                azuredeploy.json
+              repositoryName: $(Build.Repository.Name)
+              assetUploadMode: replace
+              title: "new version"
+              gitHubConnection: 'push release'
+              action: create
+              target: '$(Build.SourceVersion)'
+              tagSource: userSpecifiedTag
+              tag: $(Build.BuildNumber)
+              changeLogCompareToRelease: 'lastFullRelease'
+              changeLogType: 'commitBased'
