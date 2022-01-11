@@ -1,0 +1,109 @@
+# .NET Core Function App to Windows on Azure
+# Build a .NET Core function app and deploy it to Azure as a Windows function App.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+  - main
+
+variables:
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+
+  # Working Directory
+  workingDirectory: '$(System.DefaultWorkingDirectory)/'
+
+stages:
+- stage: Build
+  displayName: Build stage
+
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: $(vmImageName)
+
+    steps:
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '6.x'
+    - task: DotNetCoreCLI@2
+      displayName: Build
+      inputs:
+        command: 'build'
+        projects: |
+          $(workingDirectory)/*.sln
+        arguments: --configuration Release
+    - task: DotNetCoreCLI@2
+      displayName: Publish frontend
+      inputs:
+        command: 'publish'
+        projects: CZ.Azure.FileExchange.csproj
+        arguments: --output $(workingDirectory)/fe/ --configuration Release
+        zipAfterPublish: false
+        workingDirectory: $(workingDirectory)/src/CZ.Azure.FileExchange/
+    - task: DotNetCoreCLI@2
+      displayName: Publish api
+      inputs:
+        command: 'publish'
+        projects: CZ.Azure.FileExchange.Api.csproj
+        arguments: --output $(workingDirectory)/api --configuration Release
+        zipAfterPublish: false
+        workingDirectory: $(workingDirectory)/src/CZ.Azure.FileExchange.Api/
+    - script: 'az bicep build --file $(workingDirectory)/main.bicep --outfile $(Build.ArtifactStagingDirectory)/azuredeploy.json'
+      displayName: build bicep file
+    - task: ArchiveFiles@2
+      displayName: archive fe
+      inputs:
+        archiveFile: $(Build.ArtifactStagingDirectory)/Frontend.zip
+        archiveType: zip
+        includeRootFolder: false
+        rootFolderOrFile: $(workingDirectory)/fe/CZ.Azure.FileExchange/wwwroot/
+        replaceExistingArchive: true
+    - task: ArchiveFiles@2
+      displayName: archive api
+      inputs:
+        archiveFile: $(Build.ArtifactStagingDirectory)/API.zip
+        archiveType: zip
+        includeRootFolder: false
+        rootFolderOrFile: $(workingDirectory)/api/CZ.Azure.FileExchange/
+        replaceExistingArchive: true
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: Container
+
+- stage: Release
+  displayName: Release to github
+  dependsOn: Build
+  condition: succeeded()
+
+  jobs:
+  - deployment: Deploy
+    displayName: Deploy
+    environment: 'development'
+    pool:
+      vmImage: $(vmImageName)
+
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: GitHubRelease@1
+            displayName: 'release to github'
+            inputs:
+              assets: |
+                $(Pipeline.Workspace)/drop/*.zip
+                $(Pipeline.Workspace)/drop/azuredeploy.json
+              repositoryName: $(Build.Repository.Name)
+              assetUploadMode: replace
+              title: $(Build.BuildNumber)
+              gitHubConnection: 'push release'
+              action: create
+              target: '$(Build.SourceVersion)'
+              tagSource: userSpecifiedTag
+              tag: $(Build.BuildNumber)
+              changeLogCompareToRelease: 'lastFullRelease'
+              changeLogType: 'commitBased'
