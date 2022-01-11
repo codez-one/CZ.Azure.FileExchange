@@ -52,7 +52,7 @@ stages:
     - task: Bash@3
       displayName: build bicep file
       inputs:
-        script: 'az bicep build --file main.bicep --outfile $(Build.ArtifactStagingDirectory)/azuredeploy.json'
+        script: 'az bicep build --file $(workingDirectory)/main.bicep --outfile $(Build.ArtifactStagingDirectory)/azuredeploy.json'
     - publish: $(Build.ArtifactStagingDirectory)/
       artifact: drop
 
