@@ -5,6 +5,7 @@
 
 trigger:
   - main
+pr: none
 
 variables:
   # Agent VM image name
