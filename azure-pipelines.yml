@@ -49,10 +49,8 @@ stages:
         projects: |
           $(workingDirectory)/src/CZ.Azure.FileExchange.Api/
         arguments: --output $(Build.ArtifactStagingDirectory)/api/ --configuration Release
-    - task: Bash@3
+    - script: 'az bicep build --file $(workingDirectory)/main.bicep --outfile $(Build.ArtifactStagingDirectory)/azuredeploy.json'
       displayName: build bicep file
-      inputs:
-        script: 'az bicep build --file $(workingDirectory)/main.bicep --outfile $(Build.ArtifactStagingDirectory)/azuredeploy.json'
     - publish: $(Build.ArtifactStagingDirectory)/
       artifact: drop
 
