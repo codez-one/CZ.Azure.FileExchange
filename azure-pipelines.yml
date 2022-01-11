@@ -99,7 +99,7 @@ stages:
                 $(Pipeline.Workspace)/drop/azuredeploy.json
               repositoryName: $(Build.Repository.Name)
               assetUploadMode: replace
-              title: "new version"
+              title: $(Build.BuildNumber)
               gitHubConnection: 'push release'
               action: create
               target: '$(Build.SourceVersion)'
