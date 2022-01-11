@@ -40,17 +40,33 @@ stages:
       inputs:
         command: 'publish'
         projects: |
-          $(workingDirectory)/src/CZ.Azure.FileExchange/
-        arguments: --output $(Build.ArtifactStagingDirectory)/fe/ --configuration Release
+          $(workingDirectory)/src/CZ.Azure.FileExchange/*.csproj
+        arguments: --output fe/ --configuration Release
     - task: DotNetCoreCLI@2
       displayName: Publish api
       inputs:
         command: 'publish'
         projects: |
-          $(workingDirectory)/src/CZ.Azure.FileExchange.Api/
-        arguments: --output $(Build.ArtifactStagingDirectory)/api/ --configuration Release
+          $(workingDirectory)/src/CZ.Azure.FileExchange.Api/*.csproj
+        arguments: --output api/ --configuration Release
     - script: 'az bicep build --file $(workingDirectory)/main.bicep --outfile $(Build.ArtifactStagingDirectory)/azuredeploy.json'
       displayName: build bicep file
+    - task: ArchiveFiles@2
+      displayName: archive fe
+      inputs:
+        archiveFile: $(Build.ArtifactStagingDirectory)/Frontend.zip
+        archiveType: zip
+        includeRootFolder: false
+        rootFolderOrFile: fe/wwwroot/
+        replaceExistingArchive: true
+    - task: ArchiveFiles@2
+      displayName: archive api
+      inputs:
+        archiveFile: $(Build.ArtifactStagingDirectory)/API.zip
+        archiveType: zip
+        includeRootFolder: false
+        rootFolderOrFile: api/
+        replaceExistingArchive: true
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
@@ -77,7 +93,7 @@ stages:
             displayName: 'release to github'
             inputs:
               assets: |
-                $(Pipeline.Workspace)/drop/**/*.zip
+                $(Pipeline.Workspace)/drop/*.zip
                 $(Pipeline.Workspace)/drop/azuredeploy.json
               repositoryName: $(Build.Repository.Name)
               assetUploadMode: replace
