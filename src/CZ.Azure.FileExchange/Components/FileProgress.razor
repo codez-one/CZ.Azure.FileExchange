@@ -1,59 +1,24 @@
 ﻿
-<div class="col-6">
-	@Name
-</div>
-<div class="col-5">
-	<progress value="@ProcessedSize" max="@Size">@Progress%</progress>
-</div>
-<div class="col-1">
-	@switch (State)
-	{
-		case UploadState.NotStarted:
-			<span style="color:gray;">||</span>
-			break;
-		case UploadState.InProgrogress:
-			<span style="color:green;">▶</span>
-			break;
-		case UploadState.Succeeded:
-			<span style="color:green;">✔</span>
-			break;
-		case UploadState.Failed:
-			<span style="color:red;">❗</span>
-			break;
-	}
-</div>
-
-@code {
-	[Parameter]
-	public string Name { get; set; }
-	[Parameter]
-	public long ProcessedSize { get; set; }
-	[Parameter]
-	public long Size { get; set; }
-	private UploadState State { get; set; } = UploadState.NotStarted;
-	public int Progress
-	{
-		get
+<div class="file">
+	<div class="name">@Name</div>
+	<div class="progress">
+	  <span style="width: @Progress%">@Progress%</span>
+	</div>
+	<div class="state">
+		@switch (State)
 		{
-			decimal percent = Decimal.Divide(ProcessedSize, Size) * 100;
-			percent = Decimal.Round(percent);
-			if(percent < 100 && percent > 0)
-			{
-				State = UploadState.InProgrogress;
-			}
-			if(percent >= 100)
-			{
-				State = UploadState.Succeeded;
-			}
-			return Convert.ToInt32(percent);
+			case UploadState.NotStarted:
+				<i class="gg-play-pause" style="color:gray;"></i>
+				break;
+			case UploadState.InProgrogress:
+				<i class="gg-play-button" style="color:green;"></i>
+				break;
+			case UploadState.Succeeded:
+				<i class="gg-check" style="color:green;"></i>
+				break;
+			case UploadState.Failed:
+				<i class="gg-danger" style="color:red;"></i>
+				break;
 		}
-	}
-	private enum UploadState
-	{
-		NotStarted,
-		InProgrogress,
-		Succeeded,
-		Failed
-	}
-}
-
+	</div>
+</div>

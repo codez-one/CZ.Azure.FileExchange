@@ -4,95 +4,36 @@
 @using CZ.Azure.FileExchange.Components
 @inject HttpClient http
 
-<PageTitle>FileExchange</PageTitle>
+<PageTitle>Upload - Azure File Exchange</PageTitle>
 
-<h1>Upload</h1>
+<section>
+    <p>
+        Upload your files by dropping them below or select them by clicking in the box below.
+    </p>
+</section>
 
-here you can upload your files.
-
-@if(SasUrl != null)
+@if (SasUrl != null)
 {
-	<div>Code to download your files again: <span>@SasUrl.AbsolutePath.Replace("/", "")</span></div>
+    <section>
+        <p>The code to download your files: <strong>@SasUrl.AbsolutePath.Replace("/", "")</strong></p>
+    </section>
 }
 
-<InputFile aria-label="Select files to Upload" OnChange="@LoadFiles" multiple />
+<section>
+    <form>
+        <label for="upload">
+            <span>Drag your files here or click in this area.</span>
+        </label>
+        <InputFile id="upload" aria-label="Select files to Upload" OnChange="@LoadFiles" multiple />
+        <button disabled="@(!(files.Count() > 0))" @onclick="StartUpload">Start upload</button>
+    </form>
+</section>
 
-<div class="container">
-	@foreach (var file in files)
-	{
-		<div class="row">
-			<FileProgress Name="@file.Name" ProcessedSize="@file.ProcessedSize" Size="@file.BrowserFile.Size"></FileProgress>
-		</div>
-	}
-</div>
+<section>
+    @foreach (var file in files)
+    {
+        <FileProgress Name="@file.Name" ProcessedSize="@file.ProcessedSize" Size="@file.BrowserFile.Size"></FileProgress>
+    }
+</section>
 
-<button class="btn btn-primary" @onclick="StartUpload">Start upload</button>
 
-@code {
-	List<File> files = new();
-	Uri? SasUrl;
-	private void LoadFiles(InputFileChangeEventArgs e)
-	{
-		foreach (var file in e.GetMultipleFiles())
-		{
-			var fileModel = new File()
-				{
-					Name = file.Name,
-					BrowserFile = file
-				};
-
-			files.Add(fileModel);
-		}
-
-	}
-
-	private async Task StartUpload()
-	{
-		if (SasUrl == null)
-		{
-			SasUrl = new Uri(await http.GetStringAsync("api/GenerateSas"));	
-		}
-		if (SasUrl is null)
-		{
-			throw new Exception("Sas uri is null");
-		}
-		var blobContainerClient = new BlobContainerClient(SasUrl);
-		Parallel.ForEach(files.Where(f => f.ProcessedSize != f.BrowserFile.Size), async f =>
-		{
-			var blobClient = blobContainerClient.GetBlobClient(f.BrowserFile.Name);
-			await blobClient.UploadAsync(
-				f.BrowserFile.OpenReadStream(long.MaxValue),
-				new BlobUploadOptions()
-					{
-						ProgressHandler = new ProgressHandler(this, f)
-					}
-			);
-		});
-	}
-
-	class File
-	{
-		public string Name { get; set; }
-		public IBrowserFile BrowserFile { get; set; }
-		public long ProcessedSize { get; set; }
-	}
-
-	private class ProgressHandler : IProgress<long>
-	{
-		private readonly Index pageRef;
-		private readonly File file;
-		private readonly long size;
-
-		public ProgressHandler(Index pageRef, File file)
-		{
-			this.pageRef = pageRef;
-			this.file = file;
-		}
-		void IProgress<long>.Report(long value)
-		{
-			file.ProcessedSize = value;
-			pageRef.StateHasChanged();
-
-		}
-	}
-}

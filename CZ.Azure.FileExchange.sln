@@ -10,6 +10,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CZ.Azure.FileExchange", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CZ.Azure.FileExchange.Api", "src\CZ.Azure.FileExchange.Api\CZ.Azure.FileExchange.Api.csproj", "{249DF799-1F70-42DD-9508-1C3F44FD0227}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EB741972-8D2F-4D7F-A51A-A5ED45914AE1}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		azure-pipelines.yml = azure-pipelines.yml
+		main.bicep = main.bicep
+		Readme.md = Readme.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

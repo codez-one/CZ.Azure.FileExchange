@@ -1,0 +1,15 @@
+@use '../abstracts/variables';
+@use '../abstracts/mixins';
+
+section.download-input{
+    margin-top: 2em;
+    @include mixins.glass-pane;
+
+    padding: 2em;
+
+    input[type=text]{
+        @include mixins.glass-pane(variables.$foregroundcolor);
+        font-size: 1em;
+        padding: 0.5em;
+    }
+}
