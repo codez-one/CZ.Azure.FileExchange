@@ -1,11 +1,9 @@
 ﻿@page "/"
-@using global::Azure.Storage.Blobs
-@using global::Azure.Storage.Blobs.Models
 @using CZ.Azure.FileExchange.Components
-@inject HttpClient http
 
 <PageTitle>Upload - Azure File Exchange</PageTitle>
 
+<main class=upload>
 <section>
     <p>
         Upload your files by dropping them below or select them by clicking in the box below.
@@ -14,19 +12,21 @@
 
 @if (SasUrl != null)
 {
-    <section>
-        <p>The code to download your files: <strong>@SasUrl.AbsolutePath.Replace("/", "")</strong></p>
+    <section class="upload-result">
+        <p>The code to download your files:</p>
+        <p>
+            <strong>@SasId</strong>
+            <CopyToClipboard Text="@SasId" />
+        </p>
     </section>
 }
 
-<section>
-    <form>
-        <label for="upload">
-            <span>Drag your files here or click in this area.</span>
-        </label>
-        <InputFile id="upload" aria-label="Select files to Upload" OnChange="@LoadFiles" multiple />
-        <button disabled="@(!(files.Count() > 0))" @onclick="StartUpload">Start upload</button>
-    </form>
+<section class="upload">
+    <label for="upload">
+        <span>Drag your files here or click in this area.</span>
+    </label>
+    <InputFile id="upload" aria-label="Select files to Upload" OnChange="@LoadFiles" multiple />
+    <button class="glass" disabled="@(!(files.Count() > 0))" @onclick="StartUpload">Start upload</button>
 </section>
 
 <section>
@@ -35,5 +35,4 @@
         <FileProgress Name="@file.Name" ProcessedSize="@file.ProcessedSize" Size="@file.BrowserFile.Size"></FileProgress>
     }
 </section>
-
-
+</main>

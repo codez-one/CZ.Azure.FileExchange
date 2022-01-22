@@ -1,15 +1,47 @@
 @use '../abstracts/variables';
 @use '../abstracts/mixins';
 
+main.download{
 section.download-input{
     margin-top: 2em;
     @include mixins.glass-pane;
 
     padding: 2em;
+}
 
-    input[type=text]{
-        @include mixins.glass-pane(variables.$foregroundcolor);
-        font-size: 1em;
-        padding: 0.5em;
+section{
+    display: flex;
+    flex-flow: column;
+    gap: 0.5em;
+
+    div.file{
+        @include mixins.glass-pane();
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        align-content: center;
+        line-height: 2em;
+        padding: 0 1em 0 1em;
+
+        div{
+            font-size: 0.8em;
+
+        }
+
+        div.link{
+            display: flex;
+            align-items: center;
+            
+            a{
+                opacity: 0.6;
+                color: variables.$foregroundcolor-dark;
+
+                &:hover{
+                    opacity: 1;
+                }
+            }
+        }
+
     }
+}
 }

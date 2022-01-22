@@ -1,0 +1,21 @@
+@use '../abstracts/variables';
+@use '../abstracts/mixins';
+
+label[for^=txt]{
+    position: absolute;
+    font-size: 0.8em;
+    transform: translateX(1em) translateY(-1.5em);
+}
+
+input[type=text]{
+    @include mixins.glass-pane(variables.$foregroundcolor);
+    font-size: 1em;
+    padding: 0.5em;
+    outline: none;
+width: 100%;
+
+    &:active, &:focus{
+        border: 1px solid rgba(variables.$accentcolor-light, 0.5);
+        background-color: variables.$foregroundcolor;
+    }
+}

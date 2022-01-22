@@ -1,7 +1,35 @@
 @use '../abstracts/variables';
 @use '../abstracts/mixins';
 
-form {
+main.upload{
+section.upload-result {
+    @include mixins.glass-pane;
+    padding: 0.5em;
+
+    p{
+        margin: 0.5em;
+        text-shadow: variables.$text-shadow;
+
+    }
+
+    button{
+        display: inline;
+        margin: 0.5em;
+        --ggs: 0.8;
+        opacity: 0.6;
+
+        &:active{
+            background-color: variables.$accentcolor-light;
+        }
+
+        &:hover{
+            opacity: 1;
+        }
+    }
+}
+
+
+section.upload {
     width: 100%;
 
     label[for=upload]{
@@ -67,4 +95,5 @@ section{
             align-items: center;
         }
     }
+}
 }

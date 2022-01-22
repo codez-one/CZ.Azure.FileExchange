@@ -1,13 +1,20 @@
 using Microsoft.AspNetCore.Components.Forms;
 using global::Azure.Storage.Blobs;
 using global::Azure.Storage.Blobs.Models;
+using Microsoft.AspNetCore.Components;
 
 namespace CZ.Azure.FileExchange.Pages;
 
 public partial class Index
 {
+    [Inject]
+    protected HttpClient http { get; set; }
+
     List<File> files = new();
     Uri? SasUrl;
+
+    public string? SasId => SasUrl?.AbsolutePath?.Replace("/", "");
+
     private void LoadFiles(InputFileChangeEventArgs e)
     {
         foreach (var file in e.GetMultipleFiles())
@@ -22,7 +29,8 @@ public partial class Index
     {
         if (SasUrl == null)
         {
-            SasUrl = new Uri(await http.GetStringAsync("api/GenerateSas"));
+            var result = await http.GetStringAsync("api/GenerateSas");
+            SasUrl = new Uri(result);
         }
 
         if (SasUrl is null)

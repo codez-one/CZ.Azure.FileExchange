@@ -1,7 +1,14 @@
 @use '../abstracts/variables';
 @use '../abstracts/mixins';
 
-button {
+button{
+    border: none;
+    background: none;
+    outline: none;
+    cursor: pointer;
+}
+
+button.glass {
     width: 100%;
     margin-top: 1em;
     @include mixins.glass-pane(variables.$accentcolor-light);
