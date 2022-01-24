@@ -226,6 +226,7 @@ header h1 {
   line-height: 2em;
   text-align: center;
   font-weight: 400;
+  outline: none;
 }
 
 nav {
@@ -284,36 +285,14 @@ main section {
 }
 
 /* splash */
-#app .splash {
-  position: absolute;
-  top: 0;
-  left: 0;
-  min-height: 100vh;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-#app .splash .loading {
-  position: relative;
-  width: 200px;
-  height: 100px;
-  background: linear-gradient(var(--gradient-color-start), var(--gradient-color-end));
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: var(--accentcolor);
-  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1), 15px 15px 15px rgba(0, 0, 0, 0.1), 20px 20px 15px rgba(0, 0, 0, 0.1), 30px 30px 15px rgba(0, 0, 0, 0.1), inset 1px 1px 2px #fff;
-  border-radius: 5px;
-  text-shadow: var(--accentcolor);
-  -webkit-box-reflect: below 40px linear-gradient(transparent, #0002);
-}
-#app .splash .loading h3 {
+#app header nav span {
+  color: var(--foregroundcolor);
+  text-decoration: none;
+  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  font-weight: 400;
+  font-size: 1.5em;
+  margin: auto 1em;
   filter: drop-shadow(0 0 5px var(--accentcolor)) drop-shadow(0 0 15px var(--accentcolor));
-  font-weight: 200;
-  overflow: hidden;
-  letter-spacing: 2px;
-  font-size: 2em;
 }
 
 /* End splash */
