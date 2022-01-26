@@ -194,4 +194,5 @@ Remove-Item -Recurse -Force $workingDir;
 $response.response.siteUrl;
 # echo "::set-output name=pr-title::$(echo $title)"
 "::set-output name=siteurl::$($response.response.siteUrl)";
+echo "::set-output name=siteurl::$($response.response.siteUrl)";
 Write-Output "::set-output name=SiteUrl::$($response.response.siteUrl)";
