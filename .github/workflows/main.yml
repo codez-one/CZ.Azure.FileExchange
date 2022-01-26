@@ -20,7 +20,7 @@ jobs:
           submodules: true
       - name: Get PR title
         id: Pr-Title
-        run: gh pr view ${{ github.event.number }} --repo OWNER/REPO | head -n 1
+        run: gh pr view ${{ github.event.number }} --repo ${{ github.repository }} | head -n 1
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
