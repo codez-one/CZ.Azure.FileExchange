@@ -27,13 +27,12 @@ param (
     # the pullrequest Title
     [Parameter(Mandatory = $false)]
     [string]
-    $pullrequestTitle = $null
+    $pullrequestTitle = $null,
+    # delete stage if set
+    [Parameter(Mandatory = $false)]
+    [switch]
+    $Delete
 )
-New-Item -ItemType Directory -Force $workingDir;
-Compress-Archive "$apiBuildOutput\*" -DestinationPath $workingDir/api.zip;
-Compress-Archive "$appBuildOutput\*" -DestinationPath $workingDir/app.zip;
-$apiHash = (Get-FileHash $workingDir/api.zip -Algorithm MD5).Hash;
-
 $EventInfo = $null;
 if ($false -eq [string]::IsNullOrWhiteSpace($pullrequestTitle) -or 
     $false -eq [string]::IsNullOrWhiteSpace($envrionmentName) -or 
@@ -78,6 +77,27 @@ if ($response.isSuccessStatusCode -eq $false) {
         }
     }
 }
+
+if($Delete){
+    $response = Invoke-RestMethod -Uri "https://$hostname/api/pullrequest/close?apiVersion=v1&deploymentCorrelationId=$corelationId" -Method Post -Headers @{
+        "Authorization" = "token $token";
+        "Content-Type"  = "application/json; charset=utf-8";
+    }  -Body ($EventInfo | ConvertTo-Json);
+    if($response.isSuccessStatusCode -eq $false){
+        Write-Error "Deleting PR wasn't successfull";
+        Write-Verbose $response;
+    }
+    break;
+}
+
+New-Item -ItemType Directory -Force $workingDir;
+Compress-Archive "$apiBuildOutput\*" -DestinationPath $workingDir/api.zip;
+Compress-Archive "$appBuildOutput\*" -DestinationPath $workingDir/app.zip;
+$apiHash = (Get-FileHash $workingDir/api.zip -Algorithm MD5).Hash;
+
+
+
+
 
 $siteUrl = $response.response.siteUrl;
 Write-Verbose "The site to be update is: $siteUrl";
