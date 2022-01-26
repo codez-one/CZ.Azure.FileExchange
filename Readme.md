@@ -51,7 +51,7 @@ $token = Read-Host -MaskInput;
 
 #### Publish a stage
 
-To publish the stage the deploy script needs some more parameters:
+To publish a stage the deploy script needs some more parameters:
 
 ```powershell
 $token = Read-Host -MaskInput;
