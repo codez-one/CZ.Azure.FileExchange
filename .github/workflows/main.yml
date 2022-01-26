@@ -40,7 +40,7 @@ jobs:
         run: dotnet publish ./src/CZ.Azure.FileExchange/ -o temp/frontend
       - name: Publish API
         run: dotnet publish ./src/CZ.Azure.FileExchange.Api/ -o temp/api
-      - name: Build And Deploy
+      - name: Deploy
         id: deploy
         run: './build/deploy.ps1 -Token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }} -appBuildOutput ./temp/frontend/wwwroot/ -apiBuildOutput ./temp/api/  -envrionmentName ${{ github.event.number }} -pullrequestTitle "${{steps.Pr-Title.outputs.pr-title}}" -branchName ${{ github.head_ref	}} -Verbose'
         shell: pwsh
@@ -65,7 +65,7 @@ jobs:
        env:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
        continue-on-error: true
-     - name: Build And Deploy
+     - name: Deploy
        run: './build/deploy.ps1 -Token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }} -appBuildOutput ./temp/frontend/wwwroot/ -apiBuildOutput ./temp/api/  -envrionmentName ${{ github.event.number }} -pullrequestTitle "${{steps.Pr-Title.outputs.pr-title}}" -branchName ${{ github.head_ref	}} -Verbose -Delete'
        shell: pwsh
   compile_bicep:
