@@ -70,5 +70,5 @@ $token = Read-Host -MaskInput;
 $branchName = $test = git branch --show-current;
 $PrId = "Replace this string with the Id of your PR here";
 $PrTitle = "Replace this string with the title of your PR";
-./build/deploy.ps1 -Token $token -appBuildOutput ./temp/fe/wwwroot/ -apiBuildOutput ./temp/api/ -envrionmentName $PrId -pullrequestTitle $PrTitle -branchName $branchName
+./build/deploy.ps1 -Token $token -appBuildOutput ./temp/fe/wwwroot/ -apiBuildOutput ./temp/api/ -envrionmentName $PrId -pullrequestTitle $PrTitle -branchName $branchName -Delete
 ```
