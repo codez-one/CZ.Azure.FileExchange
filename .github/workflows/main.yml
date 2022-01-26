@@ -22,6 +22,8 @@ jobs:
         id: Pr-Title
         run: gh pr view ${{ github.event.number }} --repo OWNER/REPO | head -n 1
         shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v1.9.0
         with:
