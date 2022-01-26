@@ -48,3 +48,15 @@ $token = Read-Host -MaskInput;
 > Important: You must configure your storage account with the cors ruls, so it accepts request from your static websites hostname....
 
 - enjoy
+
+#### Publish a stage
+
+To publish the stage the deploy script needs some more parameters:
+
+```powershell
+$token = Read-Host -MaskInput;
+$branchName = $test = git branch --show-current;
+$PrId = "Replace this string with the Id of your PR here";
+$PrTitle = "Replace this string with the title of your PR";
+./build/deploy.ps1 -Token $token -appBuildOutput ./temp/fe/wwwroot/ -apiBuildOutput ./temp/api/ -envrionmentName $PrId -pullrequestTitle $PrTitle -branchName $branchName
+```
