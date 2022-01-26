@@ -34,7 +34,7 @@ jobs:
       - name: Build And Deploy
         uses: Amadevus/pwsh-script@v2
         with:
-          script: './build/deploy.ps1 -Token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }} -appBuildOutput ./temp/frontend/wwwroot/ -apiBuildOutput ./temp/api/  -envrionmentName ${{ github.event.number }} -pullrequestTitle "something" -branchName ${{ github.head_ref	}}'
+          script: './build/deploy.ps1 -Token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }} -appBuildOutput ./temp/frontend/wwwroot/ -apiBuildOutput ./temp/api/  -envrionmentName ${{ github.event.number }} -pullrequestTitle "something" -branchName ${{ github.head_ref	}} -Verbose'
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
@@ -43,7 +43,7 @@ jobs:
       - name: Build And Deploy
         uses: Amadevus/pwsh-script@v2
         with:
-          script: './build/deploy.ps1 -Token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }} -appBuildOutput ./temp/frontend/wwwroot/ -apiBuildOutput ./temp/api/  -envrionmentName ${{ github.event.number }} -pullrequestTitle "something" -branchName ${{ github.head_ref	}} -Delete'
+          script: './build/deploy.ps1 -Token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }} -appBuildOutput ./temp/frontend/wwwroot/ -apiBuildOutput ./temp/api/  -envrionmentName ${{ github.event.number }} -pullrequestTitle "something" -branchName ${{ github.head_ref	}} -Delete -Verbose'
   compile_bicep:
     runs-on: 'ubuntu-latest'
     name: compile main bicep
