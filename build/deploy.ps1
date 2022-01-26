@@ -58,7 +58,7 @@ $response = Invoke-RestMethod -Uri "https://$hostname/api/upload/validateapitoke
 if ($response.isSuccessStatusCode -eq $false) {
     Write-Verbose "Start bruteforce on hostname, because the default hostname don't know the token."
     # latest research shows, that there are diffrent deployment host. Up to three per region
-    # we now just start brutforce to find the host that excepts the token
+    # we now just start brutforce to find the host that accepts the token
     $instanceIds = 1..3;
     foreach ($instanceId in $instanceIds) {
         $hostname = "content-am2.infrastructure.$instanceId.azurestaticapps.net";
