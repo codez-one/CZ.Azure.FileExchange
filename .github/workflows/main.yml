@@ -41,8 +41,15 @@ jobs:
       - name: Publish API
         run: dotnet publish ./src/CZ.Azure.FileExchange.Api/ -o temp/api
       - name: Build And Deploy
+        id: deploy
         run: './build/deploy.ps1 -Token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }} -appBuildOutput ./temp/frontend/wwwroot/ -apiBuildOutput ./temp/api/  -envrionmentName ${{ github.event.number }} -pullrequestTitle "${{steps.Pr-Title.outputs.pr-title}}" -branchName ${{ github.head_ref	}} -Verbose'
         shell: pwsh
+      - name: comment-pr
+        uses: JoseThen/comment-pr@v1.1.1
+        with:
+          comment: Your website can be viewed here '${{ steps.Pr-Title.outputs.SiteUrl }}'
+          # Github Token for authentication
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
