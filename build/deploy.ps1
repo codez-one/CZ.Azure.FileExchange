@@ -30,6 +30,29 @@ $response = Invoke-RestMethod -Uri "https://$hostname/api/upload/validateapitoke
     "Content-Type"  = "application/json; charset=utf-8";
 }
 
+if($response.isSuccessStatusCode -eq $false){
+    Write-Verbose "Start bruteforce on hostname, because the default hostname don't know the token."
+    # latest research shows, that there are diffrent deployment host. Up to three per region
+    # we now just start brutforce to find the host that excepts the token
+    $instanceIds = 1..3;
+    foreach ($instanceId in $instanceIds){
+        $hostname = "content-am2.infrastructure.$instanceId.azurestaticapps.net";
+        Write-Verbose "Test hostname '$hostname' with id $instanceId";
+        $response = Invoke-RestMethod -Uri "https://$hostname/api/upload/validateapitoken?apiVersion=v1&deploymentCorrelationId=$corelationId" -Method Post -Headers @{
+            "Authorization" = "token $token";
+            "Content-Type"  = "application/json; charset=utf-8";
+        }
+        if($response.isSuccessStatusCode -eq $true){
+            Write-Verbose "Brutforce on hostname was sucessfull.";
+            break;
+        }
+        if($instanceId -eq 3){
+            Write-Error "can't connect to the static website. Check the token";
+            break;
+        }
+    }
+}
+
 $siteUrl = $response.response.siteUrl;
 Write-Verbose "The site to be update is: $siteUrl";
 
