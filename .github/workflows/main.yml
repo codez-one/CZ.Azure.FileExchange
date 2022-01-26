@@ -47,7 +47,7 @@ jobs:
       - name: comment-pr
         uses: JoseThen/comment-pr@v1.1.1
         with:
-          comment: Your website can be viewed here '${{ steps.Pr-Title.outputs.SiteUrl }}'
+          comment: Your website can be viewed here '${{ steps.deploy.outputs.SiteUrl }}'
           # Github Token for authentication
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   close_pull_request_job:
