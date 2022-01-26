@@ -192,4 +192,4 @@ while (
 
 Remove-Item -Recurse -Force $workingDir;
 
-Write-Host "::set-output name=SiteUrl::$($response.response.siteUrl)"
+Write-Output "::set-output name=SiteUrl::$($response.response.siteUrl)";
