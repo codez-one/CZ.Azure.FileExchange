@@ -21,7 +21,7 @@ jobs:
       - name: Get PR title
         id: Pr-Title
         run: |
-         title=gh pr view ${{ github.event.number }} --repo ${{ github.repository }} | head -n 1
+         title=$(gh pr view ${{ github.event.number }} --repo ${{ github.repository }} | head -n 1)
          echo "::set-output name=pr-title::$(echo $title)"
         shell: bash
         env:
