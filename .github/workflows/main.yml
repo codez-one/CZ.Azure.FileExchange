@@ -18,6 +18,10 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
+      - name: Get PR title
+        id: Pr-Title
+        run: gh pr view ${{ github.event.number }} --repo OWNER/REPO | head -n 1
+        shell: bash
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v1.9.0
         with:
@@ -32,7 +36,7 @@ jobs:
       - name: Publish API
         run: dotnet publish ./src/CZ.Azure.FileExchange.Api/ -o temp/api
       - name: Build And Deploy
-        run: './build/deploy.ps1 -Token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }} -appBuildOutput ./temp/frontend/wwwroot/ -apiBuildOutput ./temp/api/  -envrionmentName ${{ github.event.number }} -pullrequestTitle "something" -branchName ${{ github.head_ref	}} -Verbose'
+        run: './build/deploy.ps1 -Token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }} -appBuildOutput ./temp/frontend/wwwroot/ -apiBuildOutput ./temp/api/  -envrionmentName ${{ github.event.number }} -pullrequestTitle "${{steps.Pr-Title.outputs}}" -branchName ${{ github.head_ref	}} -Verbose'
         shell: pwsh
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
@@ -40,7 +44,7 @@ jobs:
     name: Close Pull Request Job
     steps:
      - name: Build And Deploy
-       run: './build/deploy.ps1 -Token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }} -appBuildOutput ./temp/frontend/wwwroot/ -apiBuildOutput ./temp/api/  -envrionmentName ${{ github.event.number }} -pullrequestTitle "something" -branchName ${{ github.head_ref	}} -Verbose -Delete'
+       run: './build/deploy.ps1 -Token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }} -appBuildOutput ./temp/frontend/wwwroot/ -apiBuildOutput ./temp/api/  -envrionmentName ${{ github.event.number }} -pullrequestTitle "${{steps.Pr-Title.outputs}}" -branchName ${{ github.head_ref	}} -Verbose -Delete'
        shell: pwsh
   compile_bicep:
     runs-on: 'ubuntu-latest'
