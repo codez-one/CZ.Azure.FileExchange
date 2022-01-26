@@ -15,12 +15,38 @@ param (
     # Set a custom working directory.
     [Parameter(Mandatory=$false)]
     [string]
-    $workingDir = "$pwd\temp\temp\"
+    $workingDir = "$pwd\temp\temp\",
+    # Set a branch name that is used in the deciption of the envrionment
+    [Parameter(Mandatory=$false)]
+    [string]
+    $branchName = $null,
+    # set the environment name. normaly it should be equal to the PR Id
+    [Parameter(Mandatory=$false)]
+    [string]
+    $envrionmentName = $null,
+    # the pullrequest Title
+    [Parameter(Mandatory=$false)]
+    [string]
+    $pullrequestTitle = $null
 )
 New-Item -ItemType Directory -Force $workingDir;
 Compress-Archive "$apiBuildOutput\*" -DestinationPath $workingDir/api.zip;
 Compress-Archive "$appBuildOutput\*" -DestinationPath $workingDir/app.zip;
 $apiHash = (Get-FileHash $workingDir/api.zip -Algorithm MD5).Hash;
+
+$EventInfo = $null;
+if($false -eq [string]::IsNullOrWhiteSpace($pullrequestTitle) -or 
+    $false -eq [string]::IsNullOrWhiteSpace($envrionmentName) -or 
+    $false -eq [string]::IsNullOrWhiteSpace($branchName)
+){
+    $EventInfo = @{
+        BaseBranch      =   $branchName
+        HeadBranch      =   $branchName
+        PullRequestId   =   $envrionmentName
+        PullRequestTitle=   $pullrequestTitle
+        IsPullRequest   =   $pullrequestTitle -ne $null -or $envrionmentName -ne $null ? $true : $false
+    }
+}
 
 $hostname = "content-am2.infrastructure.azurestaticapps.net";
 $corelationId = (New-Guid).Guid.ToString();
@@ -28,7 +54,7 @@ $corelationId = (New-Guid).Guid.ToString();
 $response = Invoke-RestMethod -Uri "https://$hostname/api/upload/validateapitoken?apiVersion=v1&deploymentCorrelationId=$corelationId" -Method Post -Headers @{
     "Authorization" = "token $token";
     "Content-Type"  = "application/json; charset=utf-8";
-}
+} -Body $EventInfo;
 
 if($response.isSuccessStatusCode -eq $false){
     Write-Verbose "Start bruteforce on hostname, because the default hostname don't know the token."
@@ -41,7 +67,7 @@ if($response.isSuccessStatusCode -eq $false){
         $response = Invoke-RestMethod -Uri "https://$hostname/api/upload/validateapitoken?apiVersion=v1&deploymentCorrelationId=$corelationId" -Method Post -Headers @{
             "Authorization" = "token $token";
             "Content-Type"  = "application/json; charset=utf-8";
-        }
+        }  -Body $EventInfo;
         if($response.isSuccessStatusCode -eq $true){
             Write-Verbose "Brutforce on hostname was sucessfull.";
             break;
@@ -56,8 +82,10 @@ if($response.isSuccessStatusCode -eq $false){
 $siteUrl = $response.response.siteUrl;
 Write-Verbose "The site to be update is: $siteUrl";
 
+
+
 $metaDeployInforamtion = @{
-    EventInfo   = $null;
+    EventInfo   = $EventInfo;
     PollingInfo = $null;
     UploadInfo  = @{
         # this must be always different. Else it wouldn't upload the api
@@ -77,7 +105,6 @@ $metaDeployInforamtion = @{
     }
 }
 $metaDeployInforamtionBody = ConvertTo-Json -InputObject $metaDeployInforamtion;
-
 $response = Invoke-RestMethod -Uri "https://$hostname/api/upload/request?apiVersion=v1&deploymentCorrelationId=$corelationId" -Method Post -Headers @{
     "Authorization" = "token $token";
     "Content-Type"  = "application/json; charset=utf-8";
