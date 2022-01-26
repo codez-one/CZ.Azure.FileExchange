@@ -20,7 +20,9 @@ jobs:
           submodules: true
       - name: Get PR title
         id: Pr-Title
-        run: gh pr view ${{ github.event.number }} --repo ${{ github.repository }} | head -n 1
+        run: |
+         title=gh pr view ${{ github.event.number }} --repo ${{ github.repository }} | head -n 1
+         echo "::set-output name=pr-title::$(echo $title)"
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -39,7 +41,7 @@ jobs:
       - name: Publish API
         run: dotnet publish ./src/CZ.Azure.FileExchange.Api/ -o temp/api
       - name: Build And Deploy
-        run: './build/deploy.ps1 -Token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }} -appBuildOutput ./temp/frontend/wwwroot/ -apiBuildOutput ./temp/api/  -envrionmentName ${{ github.event.number }} -pullrequestTitle "${{steps.Pr-Title.outcome}}" -branchName ${{ github.head_ref	}} -Verbose'
+        run: './build/deploy.ps1 -Token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }} -appBuildOutput ./temp/frontend/wwwroot/ -apiBuildOutput ./temp/api/  -envrionmentName ${{ github.event.number }} -pullrequestTitle "${{steps.Pr-Title.outputs.pr-title}}" -branchName ${{ github.head_ref	}} -Verbose'
         shell: pwsh
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
