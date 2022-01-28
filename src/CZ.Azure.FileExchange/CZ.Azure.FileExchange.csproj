@@ -33,7 +33,7 @@
     <!-- <FindUnderPath Files="main.css" Path="Client/styles/">
       <Output TaskParameter="InPath" ItemName="FilesFoundInPath" />
     </FindUnderPath> -->
-    <Move SourceFiles="Client/styles/main.css" DestinationFolder="wwwroot/client/" />
+    <Copy SourceFiles="Client/styles/main.css" DestinationFolder="wwwroot/client/" />
     <!-- <Message Text="Project File Name = $(FilesFoundInPath)" Importance="High" /> -->
   </Target>
 
