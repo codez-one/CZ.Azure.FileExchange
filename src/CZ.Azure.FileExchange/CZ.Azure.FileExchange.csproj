@@ -30,11 +30,7 @@
   </ItemGroup>
 
   <Target Name="copy_sass_to_the_right_place" AfterTargets="DartSass_Build">
-    <!-- <FindUnderPath Files="main.css" Path="Client/styles/">
-      <Output TaskParameter="InPath" ItemName="FilesFoundInPath" />
-    </FindUnderPath> -->
     <Copy SourceFiles="Client/styles/main.css" DestinationFolder="wwwroot/client/" />
-    <!-- <Message Text="Project File Name = $(FilesFoundInPath)" Importance="High" /> -->
   </Target>
 
 </Project>
