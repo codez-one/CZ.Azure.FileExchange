@@ -456,3 +456,4 @@ $RECYCLE.BIN/
 ##
 ## CZ.Azure.FileExchange
 temp/*
+**/wwwroot/client/

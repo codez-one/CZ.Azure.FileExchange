@@ -1,0 +1,15 @@
+@use '../abstracts/variables';
+
+header {
+    width: 100%;
+
+    h1 {
+        color: var(--foregroundcolor);
+        text-shadow: variables.$text-shadow;
+        font-size: 3.5em;
+        line-height: 2em;
+        text-align: center;
+        font-weight: 400;
+        outline:none;
+    }
+}

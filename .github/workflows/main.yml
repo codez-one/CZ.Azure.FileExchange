@@ -35,11 +35,11 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
-        run: dotnet build --no-restore
+        run: dotnet build -c Release --no-restore
       - name: Publish Frontend
-        run: dotnet publish ./src/CZ.Azure.FileExchange/ -o temp/frontend
+        run: dotnet publish -c Release ./src/CZ.Azure.FileExchange/ -o temp/frontend
       - name: Publish API
-        run: dotnet publish ./src/CZ.Azure.FileExchange.Api/ -o temp/api
+        run: dotnet publish -c Release ./src/CZ.Azure.FileExchange.Api/ -o temp/api
       - name: Deploy
         id: deploy
         run: './build/deploy.ps1 -Token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }} -appBuildOutput ./temp/frontend/wwwroot/ -apiBuildOutput ./temp/api/  -envrionmentName ${{ github.event.number }} -pullrequestTitle "${{steps.Pr-Title.outputs.pr-title}}" -branchName ${{ github.head_ref	}} -Verbose'

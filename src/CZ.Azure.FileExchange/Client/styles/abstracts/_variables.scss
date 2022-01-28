@@ -1,0 +1,35 @@
+$background: linear-gradient(320deg,#ffffff,#d7d7df,#999fb3);
+$backgroundcolor: #ffffff;
+
+$foregroundcolor: #fff;
+$foregroundcolor-dark: rgb(41, 41, 41);
+
+
+$accentcolor: #fff;
+$accentcolor-light: #1eff00;
+$accentcolor-lightest: #bbcde5;
+
+$gradient-color-start: #dbdbdb;
+$gradient-color-end: #a3a3a3;
+
+$gradient-liniar: linear-gradient(var(--gradient-color-start), var(--gradient-color-end));
+
+$text-shadow: 0 4px 10px rgb(0 0 0 / 20%);
+$box-shadow: 5px 5px 5px rgba(0,0,0,0.1),
+15px 15px 15px rgba(0,0,0,0.1),
+20px 20px 15px rgba(0,0,0,0.1),
+30px 30px 15px rgba(0,0,0,0.1),
+inset 1px 1px 2px #fff;
+
+$filter-glow: drop-shadow(0 0 5px var(--accentcolor)) drop-shadow(0 0 15px var(--accentcolor));
+
+:root {
+    --backgroundcolor: #{$backgroundcolor};
+    --foregroundcolor: #{$foregroundcolor};
+    --foregroundcolor-dark: #{$foregroundcolor-dark};
+    --accentcolor: #{$accentcolor};
+    --accentcolor-light: #{$accentcolor-light};
+    --accentcolor-lightest: #{$accentcolor-lightest};
+    --gradient-color-start: #{$gradient-color-start};
+    --gradient-color-end: #{$gradient-color-end};
+}

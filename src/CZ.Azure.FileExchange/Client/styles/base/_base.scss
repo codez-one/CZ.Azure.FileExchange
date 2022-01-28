@@ -1,0 +1,16 @@
+﻿@use '../abstracts/variables';
+@use 'typography';
+
+body,
+html {
+    scroll-behavior: smooth;
+    min-height: 100vh;
+}
+
+body {
+    font-family: typography.$font;
+    font-weight: 100;
+    font-size: 1.1em;
+    color: var(--foregroundcolor-dark);
+    background: variables.$background;
+}
