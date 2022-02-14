@@ -30,6 +30,7 @@ section.upload-result {
 
 
 section.upload {
+    position: relative;
     width: 100%;
 
     label[for=upload]{
@@ -39,7 +40,6 @@ section.upload {
         width: 100%;
         height: 10em;
         margin-top: 1em;
-        cursor: pointer;
 
         @include mixins.glass-pane;
 
@@ -49,7 +49,19 @@ section.upload {
     }
 
     input[type=file] {
-        display: none;
+        position: absolute;
+        font-size: 1em;
+        opacity: 0;
+        width: 100%;
+        height: 10em;
+        top: 1em;
+        cursor: pointer;
+
+        // fix for the not needed button inside the input field
+        &::-webkit-file-upload-button{
+            display: none;
+            pointer-events: none;
+        }
     }
 }
 

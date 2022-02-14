@@ -9,7 +9,6 @@
   <ItemGroup>
     <PackageReference Include="DartSassBuilder" Version="0.2.1-beta" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.10.0" />
-    <PackageReference Include="BlazorDownloadFileFast" Version="0.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.1" PrivateAssets="all" />
   </ItemGroup>
