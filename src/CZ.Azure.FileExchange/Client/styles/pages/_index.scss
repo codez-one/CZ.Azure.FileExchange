@@ -43,8 +43,15 @@ section.upload {
 
         @include mixins.glass-pane;
 
+        transition: background 250ms, border-color 250ms ;
+
         span{
             opacity: 0.6;
+        }
+
+        &.drag-target{
+            background-color: rgba(variables.$accentcolor-light, 0.2);
+            border-color: rgba(variables.$accentcolor-light, 0.5);
         }
     }
 
@@ -105,6 +112,7 @@ section{
         div.state{
             display: flex;
             align-items: center;
+
         }
     }
 }

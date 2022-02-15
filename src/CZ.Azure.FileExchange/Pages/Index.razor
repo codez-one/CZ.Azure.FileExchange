@@ -22,10 +22,21 @@
 }
 
 <section class="upload">
-    <label for="upload">
+    <label for="upload" class="@(isDragHover ? "drag-target" : "")">
         <span>Drag your files here or click in this area.</span>
     </label>
-    <InputFile id="upload" aria-label="Select files to Upload" OnChange="@LoadFiles" multiple />
+    <InputFile
+        id="upload"
+        title="Drag your files here or click in this area."
+        aria-label="Select files to Upload"
+        OnChange="@LoadFiles"
+        @ondragenter="DragEnter" 
+        @ondragover="DragEnter" 
+        @ondragleave="DragLeave" 
+        @ondragend="DragLeave" 
+        @ondrop="DragLeave" 
+        multiple
+    />
     <button class="glass" disabled="@(!(files.Count() > 0))" @onclick="StartUpload">Start upload</button>
 </section>
 

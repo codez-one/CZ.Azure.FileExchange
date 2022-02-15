@@ -8,10 +8,11 @@ namespace CZ.Azure.FileExchange.Pages;
 public partial class Index
 {
     [Inject]
-    protected HttpClient http { get; set; }
+    protected HttpClient http { get; set; } = default!;
 
     List<File> files = new();
     Uri? SasUrl;
+    private bool isDragHover = false;
 
     public string? SasId => SasUrl?.AbsolutePath?.Replace("/", "");
 
@@ -23,6 +24,14 @@ public partial class Index
             {Name = file.Name, BrowserFile = file};
             files.Add(fileModel);
         }
+    }
+
+    private void DragEnter(){
+        this.isDragHover = true;
+    }
+
+    private void DragLeave(){
+        this.isDragHover = false;
     }
 
     private async Task StartUpload()
@@ -60,7 +69,7 @@ public partial class Index
     {
         private readonly Index pageRef;
         private readonly File file;
-        private readonly long size;
+
         public ProgressHandler(Index pageRef, File file)
         {
             this.pageRef = pageRef;
