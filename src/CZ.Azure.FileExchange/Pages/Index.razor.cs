@@ -12,7 +12,8 @@ public partial class Index
 
     List<File> files = new();
     Uri? SasUrl;
-    private bool isDragHover = false;
+    private string inputFileId = Guid.NewGuid().ToString();
+    private bool isDragHover;
 
     public string? SasId => SasUrl?.AbsolutePath?.Replace("/", "");
 
@@ -24,6 +25,10 @@ public partial class Index
             {Name = file.Name, BrowserFile = file};
             files.Add(fileModel);
         }
+
+        // this magic is needed to clear the imput. If this is not done a deleted file can not selected again.
+        // Solution found here: https://stackoverflow.com/a/70877124/6526640
+        this.inputFileId = Guid.NewGuid().ToString();
     }
 
     private void DragEnter(){
@@ -54,6 +59,11 @@ public partial class Index
             await blobClient.UploadAsync(f.BrowserFile.OpenReadStream(long.MaxValue), new BlobUploadOptions()
             {ProgressHandler = new ProgressHandler(this, f)});
         });
+    }
+
+    private Task DeleteFile(File file){
+        files.Remove(file);
+        return Task.CompletedTask;
     }
 
     class File

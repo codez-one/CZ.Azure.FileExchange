@@ -26,6 +26,7 @@
         <span>Drag your files here or click in this area.</span>
     </label>
     <InputFile
+        @key=@(inputFileId)
         id="upload"
         title="Drag your files here or click in this area."
         aria-label="Select files to Upload"
@@ -40,10 +41,13 @@
     <button class="glass" disabled="@(!(files.Count() > 0))" @onclick="StartUpload">Start upload</button>
 </section>
 
-<section>
+<section class="files">
     @foreach (var file in files)
     {
-        <FileProgress Name="@file.Name" ProcessedSize="@file.ProcessedSize" Size="@file.BrowserFile.Size"></FileProgress>
+        <div>
+            <button @onclick="() => DeleteFile(file)"><i class="gg-trash"></i></button>
+            <FileProgress Name="@file.Name" ProcessedSize="@file.ProcessedSize" Size="@file.BrowserFile.Size" />
+        </div>
     }
 </section>
 </main>
