@@ -4,50 +4,52 @@
 <PageTitle>Upload - Azure File Exchange</PageTitle>
 
 <main class="upload">
-<section>
-    <p>
-        Upload your files by dropping them below or select them by clicking in the box below.
-    </p>
-</section>
-
-@if (SasUrl != null)
-{
-    <section class="upload-result">
-        <p>The code to download your files:</p>
+    <section>
         <p>
-            <strong>@SasId</strong>
-            <CopyToClipboard Text="@SasId" />
+            Upload your files by dropping them below or select them by clicking in the box below.
         </p>
     </section>
-}
 
-<section class="upload">
-    <label for="upload" class="@(isDragHover ? "drag-target" : "")">
-        <span>Drag your files here or click in this area.</span>
-    </label>
-    <InputFile
-        @key=@(inputFileId)
-        id="upload"
-        title="Drag your files here or click in this area."
-        aria-label="Select files to Upload"
-        OnChange="@LoadFiles"
-        @ondragenter="DragEnter" 
-        @ondragover="DragEnter" 
-        @ondragleave="DragLeave" 
-        @ondragend="DragLeave" 
-        @ondrop="DragLeave" 
-        multiple
-    />
-    <button class="glass" disabled="@(!(files.Count() > 0))" @onclick="StartUpload">Start upload</button>
-</section>
-
-<section class="files">
-    @foreach (var file in files)
+    @if (SasUrl != null)
     {
-        <div>
-            <button @onclick="() => DeleteFile(file)"><i class="gg-trash"></i></button>
-            <FileProgress Name="@file.Name" ProcessedSize="@file.ProcessedSize" Size="@file.BrowserFile.Size" />
-        </div>
+        <section class="upload-result">
+            <p>The code to download your files:</p>
+            <p>
+                <strong>@SasId</strong>
+                <CopyToClipboard Text="@SasId" />
+            </p>
+        </section>
     }
-</section>
+
+    <section class="upload">
+        <label for="@fileInputs.Last()" class="@(isDragHover ? "drag-target" : "")">
+            <span>Drag your files here or click in this area.</span>
+        </label>
+        @foreach (var item in fileInputs)
+        {
+            <InputFile @key=@(item)
+                   id="@item"
+                   title="Drag your files here or click in this area."
+                   aria-label="Select files to Upload"
+                   OnChange="@LoadFiles"
+                   @ondragenter="DragEnter"
+                   @ondragover="DragEnter"
+                   @ondragleave="DragLeave"
+                   @ondragend="DragLeave"
+                   @ondrop="DragLeave"
+                   multiple />
+        }
+
+        <button class="glass" disabled="@(!(files.Count() > 0))" @onclick="StartUpload">Start upload</button>
+    </section>
+
+    <section class="files">
+        @foreach (var file in files)
+        {
+            <div>
+                <button @onclick="() => DeleteFile(file)"><i class="gg-trash"></i></button>
+                <FileProgress Name="@file.Name" ProcessedSize="@file.ProcessedSize" Size="@file.BrowserFile.Size" />
+            </div>
+        }
+    </section>
 </main>

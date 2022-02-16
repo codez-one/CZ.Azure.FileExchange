@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.Components;
-
 namespace CZ.Azure.FileExchange.Components;
+
+using Microsoft.AspNetCore.Components;
 
 public partial class FileProgress
 {
@@ -18,16 +18,16 @@ public partial class FileProgress
     {
         get
         {
-            decimal percent = Decimal.Divide(ProcessedSize, Size) * 100;
-            percent = Decimal.Round(percent);
-            if (percent < 100 && percent > 0)
+            var percent = decimal.Divide(this.ProcessedSize, this.Size) * 100;
+            percent = decimal.Round(percent);
+            if (percent is < 100 and > 0)
             {
-                State = UploadState.InProgrogress;
+                this.State = UploadState.InProgrogress;
             }
 
             if (percent >= 100)
             {
-                State = UploadState.Succeeded;
+                this.State = UploadState.Succeeded;
             }
 
             return Convert.ToInt32(percent);
