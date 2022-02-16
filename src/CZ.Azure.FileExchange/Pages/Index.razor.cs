@@ -1,50 +1,73 @@
+namespace CZ.Azure.FileExchange.Pages;
+
 using Microsoft.AspNetCore.Components.Forms;
 using global::Azure.Storage.Blobs;
 using global::Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Components;
 
-namespace CZ.Azure.FileExchange.Pages;
-
 public partial class Index
 {
     [Inject]
-    protected HttpClient http { get; set; }
+    private HttpClient http { get; set; }
 
     List<File> files = new();
     Uri? SasUrl;
+    private readonly IList<string> fileInputs = new List<string>() { Guid.NewGuid().ToString() };
+    private bool isDragHover;
 
-    public string? SasId => SasUrl?.AbsolutePath?.Replace("/", "");
+    public string? SasId => this.SasUrl?.AbsolutePath?.Replace("/", "");
+
 
     private void LoadFiles(InputFileChangeEventArgs e)
     {
         foreach (var file in e.GetMultipleFiles())
         {
             var fileModel = new File()
-            {Name = file.Name, BrowserFile = file};
-            files.Add(fileModel);
+            {
+                Name = file.Name,
+                BrowserFile = file
+            };
+            this.files.Add(fileModel);
         }
+
+        // this magic is needed to ensure all ever selected files will be uploaded.
+        this.fileInputs.Add(Guid.NewGuid().ToString());
     }
+
+    private void DragEnter() => this.isDragHover = true;
+
+    private void DragLeave() => this.isDragHover = false;
 
     private async Task StartUpload()
     {
-        if (SasUrl == null)
+        if (this.SasUrl == null)
         {
-            var result = await http.GetStringAsync("api/GenerateSas");
-            SasUrl = new Uri(result);
+            var result = await this.http.GetStringAsync("api/GenerateSas");
+            this.SasUrl = new Uri(result);
         }
 
-        if (SasUrl is null)
+        if (this.SasUrl is null)
         {
-            throw new Exception("Sas uri is null");
+            throw new ArgumentNullException("Sas uri is null");
         }
 
-        var blobContainerClient = new BlobContainerClient(SasUrl);
-        Parallel.ForEach(files.Where(f => f.ProcessedSize != f.BrowserFile.Size), async f =>
-        {
-            var blobClient = blobContainerClient.GetBlobClient(f.BrowserFile.Name);
-            await blobClient.UploadAsync(f.BrowserFile.OpenReadStream(long.MaxValue), new BlobUploadOptions()
-            {ProgressHandler = new ProgressHandler(this, f)});
-        });
+        var blobContainerClient = new BlobContainerClient(this.SasUrl);
+        _ = Parallel.ForEach(
+            this.files.Where(
+                f => f.ProcessedSize != f.BrowserFile.Size
+            ), async f =>
+            {
+                var blobClient = blobContainerClient.GetBlobClient(f.BrowserFile.Name);
+                _ = await blobClient.UploadAsync(f.BrowserFile.OpenReadStream(long.MaxValue), new BlobUploadOptions()
+                { ProgressHandler = new ProgressHandler(this, f) });
+            }
+        );
+    }
+
+    private Task DeleteFile(File file)
+    {
+        _ = this.files.Remove(file);
+        return Task.CompletedTask;
     }
 
     class File
@@ -60,7 +83,7 @@ public partial class Index
     {
         private readonly Index pageRef;
         private readonly File file;
-        private readonly long size;
+
         public ProgressHandler(Index pageRef, File file)
         {
             this.pageRef = pageRef;
@@ -69,8 +92,8 @@ public partial class Index
 
         void IProgress<long>.Report(long value)
         {
-            file.ProcessedSize = value;
-            pageRef.StateHasChanged();
+            this.file.ProcessedSize = value;
+            this.pageRef.StateHasChanged();
         }
     }
 }
