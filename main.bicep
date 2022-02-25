@@ -1,8 +1,8 @@
 param name string
-
+param location string  = resourceGroup().location
 resource storage 'Microsoft.Storage/storageAccounts@2021-06-01' = {
   name: uniqueString(resourceGroup().id, '7f358957-c1be-48ad-8902-808564e0556f')
-  location: resourceGroup().location
+  location: location
   kind: 'StorageV2'
   sku: {
     name: 'Standard_LRS'
@@ -13,7 +13,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2021-06-01' = {
 
 resource website 'Microsoft.Web/staticSites@2021-02-01' = {
   name: name
-  location: resourceGroup().location
+  location: location
   sku: {
     name: 'Free'
     tier: 'Free'
@@ -44,6 +44,7 @@ resource storageBlobServiceConfig 'Microsoft.Storage/storageAccounts/blobService
         {
           allowedOrigins: [
             website.properties.defaultHostname
+            'https://*.${location}.azurestaticapps.net'
           ]
           exposedHeaders: [
             '*'
@@ -89,6 +90,11 @@ resource storageSaveMonyPolicy 'Microsoft.Storage/storageAccounts/managementPoli
                   daysAfterLastAccessTimeGreaterThan: 365
                 }
               }
+            }
+            filters:{
+              blobTypes: [
+                'blockBlob'
+              ]
             }
           }
         }
