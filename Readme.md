@@ -15,9 +15,6 @@ This can be used on the download page:
 In every [release](https://github.com/codez-one/CZ.Azure.FileExchange/releases/latest) of this repository you will find a `azuredeploy.json`.
 Just take this json and deploy it [here](https://portal.azure.com/#create/Microsoft.Template).
 After this you have in your resource group an storage account and a static web app.
-Find out the URL of your static website add the CORS rule for it:
-
-![Configure Cors](docs/.assets/ce554abc-df88-45ae-8348-6c97f8e8dbef.png)
 
 After this download the two ZIPs of the release (API.zip & Frontend.zip) and extract them.
 
