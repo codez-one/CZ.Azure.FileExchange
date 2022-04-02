@@ -10,6 +10,15 @@ This can be used on the download page:
 
 ![Download](docs/.assets/ce9c3c1a-eb2d-4222-befb-fc57b8823404.png)
 
+A demo can be used here:
+[https://kind-dune-004c2c103.azurestaticapps.net](https://kind-dune-004c2c103.azurestaticapps.net)
+
+## Status
+
+| Azure DevOps | GitHub Action |
+| ------------ | ------------- |
+| [![Build Status](https://dev.azure.com/czon/CZ.Azure.FileExchange/_apis/build/status/codez-one.CZ.Azure.FileExchange?branchName=main)](https://dev.azure.com/czon/CZ.Azure.FileExchange/_build/latest?definitionId=9&branchName=main) | [![Azure Static Web Apps CI/CD](https://github.com/codez-one/CZ.Azure.FileExchange/actions/workflows/main.yml/badge.svg)](https://github.com/codez-one/CZ.Azure.FileExchange/actions/workflows/main.yml) |
+
 ## Deployment
 
 In every [release](https://github.com/codez-one/CZ.Azure.FileExchange/releases/latest) of this repository you will find a `azuredeploy.json`.
@@ -28,6 +37,8 @@ $token = Read-Host -MaskInput;
 > Information: The token you get in the azure portal from the overview page of the static webapp. It's called `deployment token`.
 
 ### Build App
+
+> Important: If you want deploy this, build it on linux!
 
 ```powershell
 dotnet build

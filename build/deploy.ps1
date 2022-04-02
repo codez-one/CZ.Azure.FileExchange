@@ -15,7 +15,7 @@ param (
     # Set a custom working directory.
     [Parameter(Mandatory = $false)]
     [string]
-    $workingDir = "$pwd\temp\temp\",
+    $workingDir = "$pwd/temp/temp/",
     # Set a branch name that is used in the deciption of the envrionment
     [Parameter(Mandatory = $false)]
     [string]
@@ -34,8 +34,8 @@ param (
     $Delete
 )
 $EventInfo = $null;
-if ($false -eq [string]::IsNullOrWhiteSpace($pullrequestTitle) -or 
-    $false -eq [string]::IsNullOrWhiteSpace($envrionmentName) -or 
+if ($false -eq [string]::IsNullOrWhiteSpace($pullrequestTitle) -or
+    $false -eq [string]::IsNullOrWhiteSpace($envrionmentName) -or
     $false -eq [string]::IsNullOrWhiteSpace($branchName)
 ) {
     $EventInfo = @{
@@ -90,19 +90,36 @@ if($Delete){
     break;
 }
 
-New-Item -ItemType Directory -Force $workingDir;
-Compress-Archive "$apiBuildOutput\*" -DestinationPath $workingDir/api.zip;
-Compress-Archive "$appBuildOutput\*" -DestinationPath $workingDir/app.zip;
-$apiHash = (Get-FileHash $workingDir/api.zip -Algorithm MD5).Hash;
+$apiZipToUpload = ([string]::Empty);
+if((Get-Item $apiBuildOutput).PSIsContainer){
+    New-Item -ItemType Directory -Force $workingDir;
+    $apiZipToUpload = "$workingDir/api.zip";
+    Compress-Archive "$apiBuildOutput\*" -DestinationPath $apiZipToUpload -Force;
+}else{
+    $apiZipToUpload = $apiBuildOutput;
+}
+$appZipToUpload = ([string]::Empty);
+if((Get-Item $appBuildOutput).PSIsContainer){
+    New-Item -ItemType Directory -Force $workingDir;
+    $appZipToUpload = "$workingDir/app.zip";
+    Compress-Archive "$appBuildOutput\*" -DestinationPath $appZipToUpload -Force;
+}else{
+    $appZipToUpload = $appBuildOutput;
+}
+$apiHash = (Get-FileHash $apiZipToUpload -Algorithm MD5).Hash;
 
-
-
-
+function Get-ArchiveEntriesCount {
+    param (
+        [string]$pathToZip
+    )
+    $fileHandle = [System.IO.Compression.ZipFile]::OpenRead("$pathToZip");
+    $count = $fileHandle.Entries.Count;
+    $fileHandle.Dispose();
+    return $count;
+}
 
 $siteUrl = $response.response.siteUrl;
 Write-Verbose "The site to be update is: $siteUrl";
-
-
 
 $metaDeployInforamtion = @{
     EventInfo   = $EventInfo;
@@ -110,9 +127,9 @@ $metaDeployInforamtion = @{
     UploadInfo  = @{
         # this must be always different. Else it wouldn't upload the api
         ApiContentHash          = "$apiHash";
-        ApiSizeInBytes          = (Get-Item $workingDir/api.zip).Length;
-        AppFileCount            = (Get-ChildItem $appPath -Recurse -File | Measure-Object).Count;
-        AppSizeInBytes          = (Get-Item $workingDir/app.zip).Length;
+        ApiSizeInBytes          = (Get-Item $apiZipToUpload).Length;
+        AppFileCount            = (Get-ArchiveEntriesCount -pathToZip $appZipToUpload);
+        AppSizeInBytes          = (Get-Item $appZipToUpload).Length;
         ConfiguredRoles         = @();
         DefaultFileType         = "index.html";
         # this can be anything
@@ -142,7 +159,7 @@ $metaDeployInforamtionBody;
 if ($null -ne $response.response.packageUris.api -and
     [string]::IsNullOrWhiteSpace($response.response.packageUris.api) -eq $false) {
     $blobGuid = (New-Guid).Guid.ToString();
-    Invoke-WebRequest -Method Put -Uri $response.response.packageUris.api -InFile $workingDir/api.zip -Headers @{
+    Invoke-WebRequest -Method Put -Uri $response.response.packageUris.api -InFile $apiZipToUpload -Headers @{
         "x-ms-blob-type"                = "BlockBlob";
         "x-ms-client-request-id"        = "$blobGuid";
         "x-ms-return-client-request-id" = "true";
@@ -156,7 +173,7 @@ else {
 if ($null -ne $response.response.packageUris.app -and
     [string]::IsNullOrWhiteSpace($response.response.packageUris.app) -eq $false) {
     $blobGuid = (New-Guid).Guid.ToString();
-    Invoke-WebRequest -Method Put -Uri $response.response.packageUris.app -InFile $workingDir/app.zip -Headers @{
+    Invoke-WebRequest -Method Put -Uri $response.response.packageUris.app -InFile $appZipToUpload -Headers @{
         "x-ms-blob-type"                = "BlockBlob";
         "x-ms-client-request-id"        = "$blobGuid";
         "x-ms-return-client-request-id" = "true";
@@ -189,7 +206,8 @@ while (
     $response;
     Start-Sleep 2;
 }
-
-Remove-Item -Recurse -Force $workingDir;
+if((Test-Path $workingDir)){
+    Remove-Item -Recurse -Force $workingDir;
+}
 $response.response.siteUrl;
 Write-Output "::set-output name=SiteUrl::$($response.response.siteUrl)";

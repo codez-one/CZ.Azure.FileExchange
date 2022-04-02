@@ -40,18 +40,20 @@ stages:
       displayName: Publish frontend
       inputs:
         command: 'publish'
-        projects: CZ.Azure.FileExchange.csproj
+        projects: $(workingDirectory)/src/CZ.Azure.FileExchange/CZ.Azure.FileExchange.csproj
         arguments: --output $(workingDirectory)/fe/ --configuration Release
         zipAfterPublish: false
         workingDirectory: $(workingDirectory)/src/CZ.Azure.FileExchange/
+        publishWebProjects: false
     - task: DotNetCoreCLI@2
       displayName: Publish api
       inputs:
         command: 'publish'
-        projects: CZ.Azure.FileExchange.Api.csproj
+        projects: $(workingDirectory)/src/CZ.Azure.FileExchange.Api/CZ.Azure.FileExchange.Api.csproj
         arguments: --output $(workingDirectory)/api --configuration Release
         zipAfterPublish: false
         workingDirectory: $(workingDirectory)/src/CZ.Azure.FileExchange.Api/
+        publishWebProjects: false
     - script: 'az bicep build --file $(workingDirectory)/main.bicep --outfile $(Build.ArtifactStagingDirectory)/azuredeploy.json'
       displayName: build bicep file
     - task: ArchiveFiles@2
@@ -68,26 +70,31 @@ stages:
         archiveFile: $(Build.ArtifactStagingDirectory)/API.zip
         archiveType: zip
         includeRootFolder: false
-        rootFolderOrFile: $(workingDirectory)/api/CZ.Azure.FileExchange/
+        rootFolderOrFile: $(workingDirectory)/api/CZ.Azure.FileExchange.Api/
         replaceExistingArchive: true
+    - task: CopyFiles@2
+      displayName: "copy deploy script to the artifact bundle"
+      inputs:
+        SourceFolder: $(workingDirectory)/build/
+        Contents: '**.ps1'
+        TargetFolder: $(Build.ArtifactStagingDirectory)/
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
         ArtifactName: 'drop'
         publishLocation: Container
 
-- stage: Release
-  displayName: Release to github
+- stage: ReleaseToGithub
+  displayName: Release to Github
   dependsOn: Build
   condition: succeeded()
 
   jobs:
-  - deployment: Deploy
-    displayName: Deploy
+  - deployment: DeployGithub
+    displayName: "Deploy - Github Release"
     environment: 'development'
     pool:
       vmImage: $(vmImageName)
-
     strategy:
       runOnce:
         deploy:
@@ -108,3 +115,35 @@ stages:
               tag: $(Build.BuildNumber)
               changeLogCompareToRelease: 'lastFullRelease'
               changeLogType: 'commitBased'
+- stage: ReleaseToAzure
+  displayName: Release to Azure
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+    - deployment: DeployAzure
+      displayName: "Deploy - Azure Environment"
+      environment: 'development'
+      pool:
+        vmImage: $(vmImageName)
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - task: AzureResourceManagerTemplateDeployment@3
+                displayName: "Deploy ARM template to Azure"
+                inputs:
+                  deploymentScope: 'Resource Group'
+                  azureResourceManagerConnection: 'Nutzungsbasierte Bezahlung (current) (be99037d-eba5-4420-a2d3-0812c5dd9c51)'
+                  subscriptionId: 'be99037d-eba5-4420-a2d3-0812c5dd9c51'
+                  action: 'Create Or Update Resource Group'
+                  resourceGroupName: 'pajetestfileshare'
+                  location: 'West Europe'
+                  templateLocation: 'Linked artifact'
+                  csmFile: '$(Pipeline.Workspace)/drop/azuredeploy.json'
+                  overrideParameters: '-name pajetestfileshare'
+                  deploymentMode: 'Incremental'
+              - task: PowerShell@2
+                displayName: "Deploy static webapp"
+                inputs:
+                  filePath: '$(Pipeline.Workspace)/drop/deploy.ps1'
+                  arguments: '-Token $(staticWebSiteSecret) -appBuildOutput $(Pipeline.Workspace)/drop/Frontend.zip -apiBuildOutput $(Pipeline.Workspace)/drop/API.zip -branchName main -Verbose'
