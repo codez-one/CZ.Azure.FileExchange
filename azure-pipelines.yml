@@ -138,7 +138,7 @@ stages:
                   location: 'West Europe'
                   templateLocation: 'Linked artifact'
                   csmFile: '$(Pipeline.Workspace)/drop/azuredeploy.json'
-                  overrideParameters: '--name pajetestfileshare'
+                  overrideParameters: '-name pajetestfileshare'
                   deploymentMode: 'Incremental'
               - task: PowerShell@2
                 displayName: "Deploy static webapp"
