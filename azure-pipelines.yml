@@ -70,7 +70,7 @@ stages:
         archiveFile: $(Build.ArtifactStagingDirectory)/API.zip
         archiveType: zip
         includeRootFolder: false
-        rootFolderOrFile: $(workingDirectory)/api/CZ.Azure.FileExchange/
+        rootFolderOrFile: $(workingDirectory)/api/CZ.Azure.FileExchange.API/
         replaceExistingArchive: true
     - task: CopyFiles@2
       displayName: "copy deploy script to the artifact bundle"
