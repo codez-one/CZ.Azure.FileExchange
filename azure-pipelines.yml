@@ -40,15 +40,16 @@ stages:
       displayName: Publish frontend
       inputs:
         command: 'publish'
-        projects: CZ.Azure.FileExchange.csproj
+        projects: $(workingDirectory)/src/CZ.Azure.FileExchange/CZ.Azure.FileExchange.csproj
         arguments: --output $(workingDirectory)/fe/ --configuration Release
         zipAfterPublish: false
         workingDirectory: $(workingDirectory)/src/CZ.Azure.FileExchange/
+        publishWebProjects: false
     - task: DotNetCoreCLI@2
       displayName: Publish api
       inputs:
         command: 'publish'
-        projects: CZ.Azure.FileExchange.Api.csproj
+        projects: $(workingDirectory)/src/CZ.Azure.FileExchange.Api/CZ.Azure.FileExchange.Api.csproj
         arguments: --output $(workingDirectory)/api --configuration Release
         zipAfterPublish: false
         workingDirectory: $(workingDirectory)/src/CZ.Azure.FileExchange.Api/
