@@ -43,7 +43,7 @@ resource storageBlobServiceConfig 'Microsoft.Storage/storageAccounts/blobService
       corsRules: [
         {
           allowedOrigins: [
-            website.properties.defaultHostname
+            'https://${website.properties.defaultHostname}'
             'https://*.${location}.azurestaticapps.net'
           ]
           exposedHeaders: [
