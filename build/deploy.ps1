@@ -15,7 +15,7 @@ param (
     # Set a custom working directory.
     [Parameter(Mandatory = $false)]
     [string]
-    $workingDir = "$pwd\temp\temp\",
+    $workingDir = "$pwd/temp/temp/",
     # Set a branch name that is used in the deciption of the envrionment
     [Parameter(Mandatory = $false)]
     [string]
