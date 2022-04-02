@@ -82,8 +82,8 @@ stages:
         ArtifactName: 'drop'
         publishLocation: Container
 
-- stage: Release
-  displayName: Release to github
+- stage: ReleaseToGithub
+  displayName: Release to Github
   dependsOn: Build
   condition: succeeded()
 
@@ -113,31 +113,35 @@ stages:
               tag: $(Build.BuildNumber)
               changeLogCompareToRelease: 'lastFullRelease'
               changeLogType: 'commitBased'
-  - deployment: DeployAzure
-    displayName: "Deploy - Azure Environment"
-    environment: 'development'
-    pool:
-      vmImage: $(vmImageName)
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-            - task: AzureResourceManagerTemplateDeployment@3
-              displayName: "Deploy ARM template to Azure"
-              inputs:
-                deploymentScope: 'Resource Group'
-                azureResourceManagerConnection: 'Nutzungsbasierte Bezahlung (current) (be99037d-eba5-4420-a2d3-0812c5dd9c51)'
-                subscriptionId: 'be99037d-eba5-4420-a2d3-0812c5dd9c51'
-                action: 'Create Or Update Resource Group'
-                resourceGroupName: 'pajetestfileshare'
-                location: 'West Europe'
-                templateLocation: 'Linked artifact'
-                csmFile: '$(Pipeline.Workspace)/drop/azuredeploy.json'
-                overrideParameters: '--name pajetestfileshare'
-                deploymentMode: 'Incremental'
-            - task: PowerShell@2
-              displayName: "Deploy static webapp"
-              inputs:
-                filePath: '$(Pipeline.Workspace)/drop/deploy.ps1'
-                arguments: '-Token $(staticWebSiteSecret) -appBuildOutput ./temp/frontend/wwwroot/ -apiBuildOutput ./temp/api/ -branchName main -Verbose'
-
+- stage: ReleaseToAzure
+  displayName: Release to Azure
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+    - deployment: DeployAzure
+      displayName: "Deploy - Azure Environment"
+      environment: 'development'
+      pool:
+        vmImage: $(vmImageName)
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - task: AzureResourceManagerTemplateDeployment@3
+                displayName: "Deploy ARM template to Azure"
+                inputs:
+                  deploymentScope: 'Resource Group'
+                  azureResourceManagerConnection: 'Nutzungsbasierte Bezahlung (current) (be99037d-eba5-4420-a2d3-0812c5dd9c51)'
+                  subscriptionId: 'be99037d-eba5-4420-a2d3-0812c5dd9c51'
+                  action: 'Create Or Update Resource Group'
+                  resourceGroupName: 'pajetestfileshare'
+                  location: 'West Europe'
+                  templateLocation: 'Linked artifact'
+                  csmFile: '$(Pipeline.Workspace)/drop/azuredeploy.json'
+                  overrideParameters: '--name pajetestfileshare'
+                  deploymentMode: 'Incremental'
+              - task: PowerShell@2
+                displayName: "Deploy static webapp"
+                inputs:
+                  filePath: '$(Pipeline.Workspace)/drop/deploy.ps1'
+                  arguments: '-Token $(staticWebSiteSecret) -appBuildOutput ./temp/frontend/wwwroot/ -apiBuildOutput ./temp/api/ -branchName main -Verbose'
