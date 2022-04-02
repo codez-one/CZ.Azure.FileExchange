@@ -206,7 +206,8 @@ while (
     $response;
     Start-Sleep 2;
 }
-
-Remove-Item -Recurse -Force $workingDir;
+if((Test-Path $workingDir)){
+    Remove-Item -Recurse -Force $workingDir;
+}
 $response.response.siteUrl;
 Write-Output "::set-output name=SiteUrl::$($response.response.siteUrl)";
