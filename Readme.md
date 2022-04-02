@@ -35,6 +35,8 @@ $token = Read-Host -MaskInput;
 
 ### Build App
 
+> Important: If you want deploy this, build it on linux!
+
 ```powershell
 dotnet build
 dotnet publish .\src\CZ.Azure.FileExchange\ -o temp/fe

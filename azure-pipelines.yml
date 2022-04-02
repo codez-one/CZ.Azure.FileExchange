@@ -70,6 +70,12 @@ stages:
         includeRootFolder: false
         rootFolderOrFile: $(workingDirectory)/api/CZ.Azure.FileExchange/
         replaceExistingArchive: true
+    - task: CopyFiles@2
+      displayName: "copy deploy script to the artifact bundle"
+      inputs:
+        SourceFolder: $(workingDirectory)/build/
+        Contents: '**.ps1'
+        TargetFolder: $(Build.ArtifactStagingDirectory)/
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
@@ -82,12 +88,11 @@ stages:
   condition: succeeded()
 
   jobs:
-  - deployment: Deploy
-    displayName: Deploy
+  - deployment: Deploy-Github
+    displayName: "Deploy - Github Release"
     environment: 'development'
     pool:
       vmImage: $(vmImageName)
-
     strategy:
       runOnce:
         deploy:
@@ -108,3 +113,31 @@ stages:
               tag: $(Build.BuildNumber)
               changeLogCompareToRelease: 'lastFullRelease'
               changeLogType: 'commitBased'
+  - deployment: Deploy-Azure
+    displayName: "Deploy - Azure Environment"
+    environment: 'development'
+    pool:
+      vmImage: $(vmImageName)
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - task: AzureResourceManagerTemplateDeployment@3
+              displayName: "Deploy ARM template to Azure"
+              inputs:
+                deploymentScope: 'Resource Group'
+                azureResourceManagerConnection: 'Nutzungsbasierte Bezahlung (current) (be99037d-eba5-4420-a2d3-0812c5dd9c51)'
+                subscriptionId: 'be99037d-eba5-4420-a2d3-0812c5dd9c51'
+                action: 'Create Or Update Resource Group'
+                resourceGroupName: 'pajetestfileshare'
+                location: 'West Europe'
+                templateLocation: 'Linked artifact'
+                csmFile: '$(Pipeline.Workspace)/drop/azuredeploy.json'
+                overrideParameters: '--name pajetestfileshare'
+                deploymentMode: 'Incremental'
+            - task: PowerShell@2
+              displayName: "Deploy static webapp"
+              inputs:
+                filePath: '$(Pipeline.Workspace)/drop/deploy.ps1'
+                arguments: '-Token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }} -appBuildOutput ./temp/frontend/wwwroot/ -apiBuildOutput ./temp/api/ -branchName main -Verbose'
+
