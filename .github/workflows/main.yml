@@ -81,7 +81,3 @@ jobs:
         uses: Azure/bicep-build-action@v1.0.0
         with:
           bicepFilePath: main.bicep
-  setup_main_stage:
-    runs-on: 'ubuntu-latest'
-    name: "setup the stage for the main branch"
-    
