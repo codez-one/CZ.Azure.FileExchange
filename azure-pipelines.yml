@@ -52,6 +52,7 @@ stages:
         arguments: --output $(workingDirectory)/api --configuration Release
         zipAfterPublish: false
         workingDirectory: $(workingDirectory)/src/CZ.Azure.FileExchange.Api/
+        publishWebProjects: false
     - script: 'az bicep build --file $(workingDirectory)/main.bicep --outfile $(Build.ArtifactStagingDirectory)/azuredeploy.json'
       displayName: build bicep file
     - task: ArchiveFiles@2
