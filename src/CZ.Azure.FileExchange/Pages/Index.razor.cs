@@ -55,7 +55,13 @@ public partial class Index
         _ = Parallel.ForEach(
             this.files.Where(
                 f => f.ProcessedSize != f.BrowserFile.Size
-            ), async f =>
+            ), new ParallelOptions(){
+                // this is here to avoid the exploding of the browser APIs
+                // if you build up a to big queue for webrequest, for some reason,
+                // some browser don't like it.
+                // so we limit this here to 4.
+                MaxDegreeOfParallelism = 4
+            }, async f =>
             {
                 var blobClient = blobContainerClient.GetBlobClient(f.BrowserFile.Name);
                 _ = await blobClient.UploadAsync(f.BrowserFile.OpenReadStream(long.MaxValue), new BlobUploadOptions()
