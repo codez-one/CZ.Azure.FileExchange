@@ -20,7 +20,7 @@ public partial class Index
 
     private void LoadFiles(InputFileChangeEventArgs e)
     {
-        foreach (var file in e.GetMultipleFiles())
+        foreach (var file in e.GetMultipleFiles(maximumFileCount: int.MaxValue))
         {
             var fileModel = new File()
             {
