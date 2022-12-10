@@ -3,7 +3,7 @@
     "appInsights1": {
       "type": "appInsights"
     },
-    "storage1": {
+    "StorageConnectionString": {
       "type": "storage",
       "connectionId": "AzureWebJobsStorage"
     }
