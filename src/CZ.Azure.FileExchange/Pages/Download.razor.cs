@@ -1,45 +1,44 @@
+namespace CZ.Azure.FileExchange.Pages;
 using global::Azure.Storage.Blobs;
 using global::Azure.Storage.Blobs.Models;
-
-namespace CZ.Azure.FileExchange.Pages;
 
 public partial class Download
 {
     private string Code { get; set; } = string.Empty;
-    private List<BlobItem> blobs = new();
-    Uri? SasUrl;
+    private readonly List<BlobItem> blobs = new();
+    private Uri? sasUrl;
     private async Task LoadFiles()
     {
-        if (string.IsNullOrWhiteSpace(Code))
+        if (string.IsNullOrWhiteSpace(this.Code))
         {
-            throw new Exception("You must enter a code");
+            throw new ArgumentException("You must enter a code");
         }
 
-        if (SasUrl == null)
+        if (this.sasUrl == null)
         {
-            SasUrl = new Uri(await http.GetStringAsync($"api/GenerateSas?filecode={Code}"));
+            this.sasUrl = new Uri(await this.http.GetStringAsync($"api/GenerateSas?filecode={this.Code}"));
         }
 
-        if (SasUrl is null)
+        if (this.sasUrl is null)
         {
-            throw new Exception("Sas uri is null");
+            throw new ArgumentException("Sas uri is null");
         }
 
-        var blobContainerClient = new BlobContainerClient(SasUrl);
+        var blobContainerClient = new BlobContainerClient(this.sasUrl);
         await foreach (var singleBlob in blobContainerClient.GetBlobsAsync())
         {
-            blobs.Add(singleBlob);
+            this.blobs.Add(singleBlob);
         }
     }
 
     private string GetFileLink(string blobName)
     {
-        if (SasUrl is null)
+        if (this.sasUrl is null)
         {
-            throw new Exception("Sas uri is null");
+            throw new ArgumentException("Sas uri is null");
         }
 
-        var parts = SasUrl.ToString().Split('?');
+        var parts = this.sasUrl.ToString().Split('?');
         return $"{parts[0]}/{blobName}?{parts[1]}";
     }
 
@@ -56,32 +55,32 @@ public partial class Download
             return "0 KB";
         }
 
-        double tmp = System.Convert.ToDouble(number.Value);
-        string suffix = " B ";
+        var tmp = Convert.ToDouble(number.Value);
+        var suffix = " B ";
         if (tmp > 1024)
         {
-            tmp = tmp / 1024;
+            tmp /= 1024;
             suffix = " KB";
         }
 
         if (tmp > 1024)
         {
-            tmp = tmp / 1024;
+            tmp /= 1024;
             suffix = " MB";
         }
 
         if (tmp > 1024)
         {
-            tmp = tmp / 1024;
+            tmp /= 1024;
             suffix = " GB";
         }
 
         if (tmp > 1024)
         {
-            tmp = tmp / 1024;
+            tmp /= 1024;
             suffix = " TB";
         }
 
-        return tmp.ToString("n") + suffix;
+        return $"{tmp:n}{suffix}";
     }
 }

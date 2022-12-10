@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Components;
 public partial class FileProgress
 {
     [Parameter]
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     [Parameter]
     public long ProcessedSize { get; set; }

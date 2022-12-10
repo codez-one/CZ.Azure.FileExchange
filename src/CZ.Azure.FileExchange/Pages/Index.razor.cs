@@ -8,25 +8,21 @@ using Microsoft.AspNetCore.Components;
 public partial class Index
 {
     [Inject]
-    private HttpClient http { get; set; }
+    private HttpClient Http { get; set; } = default!;
 
-    List<File> files = new();
-    Uri? SasUrl;
+    private readonly List<File> files = new();
+    private Uri? sasUrl;
     private readonly IList<string> fileInputs = new List<string>() { Guid.NewGuid().ToString() };
     private bool isDragHover;
 
-    public string? SasId => this.SasUrl?.AbsolutePath?.Replace("/", "");
+    public string? SasId => this.sasUrl?.AbsolutePath?.Replace("/", "");
 
 
     private void LoadFiles(InputFileChangeEventArgs e)
     {
         foreach (var file in e.GetMultipleFiles(maximumFileCount: int.MaxValue))
         {
-            var fileModel = new File()
-            {
-                Name = file.Name,
-                BrowserFile = file
-            };
+            var fileModel = new File(file.Name, file);
             this.files.Add(fileModel);
         }
 
@@ -40,22 +36,23 @@ public partial class Index
 
     private async Task StartUpload()
     {
-        if (this.SasUrl == null)
+        if (this.sasUrl == null)
         {
-            var result = await this.http.GetStringAsync("api/GenerateSas");
-            this.SasUrl = new Uri(result);
+            var result = await this.Http.GetStringAsync("api/GenerateSas");
+            this.sasUrl = new Uri(result);
         }
 
-        if (this.SasUrl is null)
+        if (this.sasUrl is null)
         {
             throw new ArgumentNullException("Sas uri is null");
         }
 
-        var blobContainerClient = new BlobContainerClient(this.SasUrl);
+        var blobContainerClient = new BlobContainerClient(this.sasUrl);
         _ = Parallel.ForEach(
             this.files.Where(
                 f => f.ProcessedSize != f.BrowserFile.Size
-            ), new ParallelOptions(){
+            ), new ParallelOptions()
+            {
                 // this is here to avoid the exploding of the browser APIs
                 // if you build up a to big queue for webrequest, for some reason,
                 // some browser don't like it.
@@ -76,8 +73,14 @@ public partial class Index
         return Task.CompletedTask;
     }
 
-    class File
+    private class File
     {
+        public File(string name, IBrowserFile browserFile, long processedSize = 0)
+        {
+            this.Name = name;
+            this.BrowserFile = browserFile;
+            this.ProcessedSize = processedSize;
+        }
         public string Name { get; set; }
 
         public IBrowserFile BrowserFile { get; set; }
