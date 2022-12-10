@@ -16,6 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		azure-pipelines.yml = azure-pipelines.yml
 		global.json = global.json
 		main.bicep = main.bicep
+		.github\workflows\main.yml = .github\workflows\main.yml
 		Readme.md = Readme.md
 	EndProjectSection
 EndProject
