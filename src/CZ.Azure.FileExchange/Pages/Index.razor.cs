@@ -48,23 +48,28 @@ public partial class Index
         }
 
         var blobContainerClient = new BlobContainerClient(this.sasUrl);
-        _ = Parallel.ForEach(
-            this.files.Where(
-                f => f.ProcessedSize != f.BrowserFile.Size
-            ), new ParallelOptions()
+        var throttling = new SemaphoreSlim(4, 4);
+        var fileTasks = this.files
+            .Where(f => f.ProcessedSize != f.BrowserFile.Size)
+            .Select(async f =>
             {
-                // this is here to avoid the exploding of the browser APIs
-                // if you build up a to big queue for webrequest, for some reason,
-                // some browser don't like it.
-                // so we limit this here to 4.
-                MaxDegreeOfParallelism = 4
-            }, async f =>
-            {
-                var blobClient = blobContainerClient.GetBlobClient(f.BrowserFile.Name);
-                _ = await blobClient.UploadAsync(f.BrowserFile.OpenReadStream(long.MaxValue), new BlobUploadOptions()
-                { ProgressHandler = new ProgressHandler(this, f) });
-            }
-        );
+                try
+                {
+                    await throttling.WaitAsync();
+                    var blobClient = blobContainerClient.GetBlobClient(f.BrowserFile.Name);
+                    using var filestream = f.BrowserFile.OpenReadStream(long.MaxValue);
+                    _ = await blobClient.UploadAsync(
+                        filestream,
+                        new BlobUploadOptions() { ProgressHandler = new ProgressHandler(this, f) }
+                    );
+                }
+                finally
+                {
+                    _ = throttling.Release();
+                }
+
+            });
+        await Task.WhenAll(fileTasks);
     }
 
     private Task DeleteFile(File file)
