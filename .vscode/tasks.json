@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/src/CZ.Azure.FileExchange/CZ.Azure.FileExchange.csproj",
+                "${workspaceFolder}/CZ.Azure.FileExchange.sln",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -32,9 +32,8 @@
             "args": [
                 "watch",
                 "run",
-                "${workspaceFolder}/src/CZ.Azure.FileExchange/CZ.Azure.FileExchange.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
+                "--project",
+                "${workspaceFolder}/src/CZ.Azure.FileExchange/CZ.Azure.FileExchange.csproj"
             ],
             "problemMatcher": "$msCompile"
         }

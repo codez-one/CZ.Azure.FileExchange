@@ -4,6 +4,8 @@
       "type": "appInsights.sdk"
     },
     "StorageConnectionString": {
+      "secretStore": null,
+      "resourceId": null,
       "type": "storage.emulator",
       "connectionId": "AzureWebJobsStorage"
     }
