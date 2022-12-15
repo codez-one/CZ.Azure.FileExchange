@@ -11,14 +11,9 @@
 @use "./base/typography";
 @use "./base/base";
 
-@use "./layout/header";
-@use "./layout/navigation";
 @use "./layout/main";
 
 @use "./components/blazor-error";
 @use "./components/blazor-splash";
 @use "./components/button";
 @use "./components/input-text";
-
-@use "./pages/index";
-@use "./pages/download";

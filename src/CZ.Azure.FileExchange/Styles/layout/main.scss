@@ -1,0 +1,51 @@
+@use 'abstracts/variables';
+
+:root {
+    --backgroundcolor: #{variables.$backgroundcolor};
+    --foregroundcolor: #{variables.$foregroundcolor};
+    --foregroundcolor-dark: #{variables.$foregroundcolor-dark};
+    --accentcolor: #{variables.$accentcolor};
+    --accentcolor-light: #{variables.$accentcolor-light};
+    --accentcolor-lightest: #{variables.$accentcolor-lightest};
+    --gradient-color-start: #{variables.$gradient-color-start};
+    --gradient-color-end: #{variables.$gradient-color-end};
+}
+
+main{
+    width: 80vw;
+    margin: 0 auto;
+    padding-top: 1em;
+    margin-bottom: 1em;
+
+    section{
+        text-align: center;
+        margin-top: 1em;
+    }
+}
+
+header {
+    width: 100%;
+
+    h1 {
+        color: var(--foregroundcolor);
+        text-shadow: variables.$text-shadow;
+        font-size: 3.5em;
+        line-height: 2em;
+        text-align: center;
+        font-weight: 400;
+        outline:none;
+    }
+
+    p {
+        display: flex;
+        justify-content: center;
+        margin-top: 1em;
+
+        color: var(--foregroundcolor);
+        text-decoration: none;
+        text-shadow: variables.$text-shadow;
+        font-weight: 400;
+        font-size: 1.5em;
+        margin: auto 1em;
+    }
+}

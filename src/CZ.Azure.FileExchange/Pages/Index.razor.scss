@@ -1,5 +1,5 @@
-@use '../abstracts/variables';
-@use '../abstracts/mixins';
+@use 'abstracts/variables';
+@use 'abstracts/mixins';
 
 main.upload {
   section.upload-result {
@@ -27,7 +27,6 @@ main.upload {
     }
   }
 
-
   section.upload {
     position: relative;
     width: 100%;
@@ -53,7 +52,7 @@ main.upload {
       }
     }
 
-    input[type=file] {
+    ::deep input[type=file] {
       display:none;
       position: absolute;
       font-size: 1em;
@@ -91,7 +90,7 @@ main.upload {
           opacity: 0.5;
         }
 
-        div.file {
+        ::deep div.file {
           transform: translate(2em);
         }
       }
@@ -115,50 +114,6 @@ main.upload {
         &:focus {
           outline: 1px solid;
           outline-offset: -3px;
-        }
-      }
-
-      div.file {
-        @include mixins.glass-pane();
-        position: relative;
-        display: flex;
-        justify-content: space-between;
-        align-content: center;
-        line-height: 2em;
-        padding: 0 1em 0 3em;
-        transition: transform 250ms;
-
-        div.name {
-          font-size: 0.8em;
-        }
-
-        div.progress {
-          position: absolute;
-          top: 0;
-          left: 0;
-          bottom: 0;
-          right: 0;
-
-          > span {
-            display: block;
-            text-align: left;
-            white-space: nowrap;
-            pointer-events: none;
-            font-size: 0.8em;
-            text-indent: 1em;
-            height: 100%;
-            background: rgba(variables.$accentcolor-light, 0.2);
-          }
-        }
-
-        div.state {
-          display: flex;
-          align-items: center;
-          gap: 1em;
-
-          i {
-            opacity: 0.5;
-          }
         }
       }
     }

@@ -22,14 +22,3 @@ $box-shadow: 5px 5px 5px rgba(0,0,0,0.1),
 inset 1px 1px 2px #fff;
 
 $filter-glow: drop-shadow(0 0 5px var(--accentcolor)) drop-shadow(0 0 15px var(--accentcolor));
-
-:root {
-    --backgroundcolor: #{$backgroundcolor};
-    --foregroundcolor: #{$foregroundcolor};
-    --foregroundcolor-dark: #{$foregroundcolor-dark};
-    --accentcolor: #{$accentcolor};
-    --accentcolor-light: #{$accentcolor-light};
-    --accentcolor-lightest: #{$accentcolor-lightest};
-    --gradient-color-start: #{$gradient-color-start};
-    --gradient-color-end: #{$gradient-color-end};
-}

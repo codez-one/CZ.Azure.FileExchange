@@ -7,29 +7,33 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DartSassBuilder" Version="0.2.1-beta" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.14.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.1" PrivateAssets="all" />
   </ItemGroup>
 
-  <!-- SASS options -->
-  <PropertyGroup>
-    <!-- outputstyle option -->
-    <DartSassOutputStyle>compressed</DartSassOutputStyle>
-    <DartSassOutputStyle Condition="'$(Configuration)' == 'Debug'">expanded</DartSassOutputStyle>
-    <!-- level option -->
-    <DartSassOutputLevel>verbose</DartSassOutputLevel>
-    <!-- msbuild output level -->
-    <DartSassMessageLevel>High</DartSassMessageLevel>
-  </PropertyGroup>
-  <ItemGroup>
-    <!-- add files manually -->
-    <SassFile Include="Client/**/*.scss" />
-  </ItemGroup>
+  <Target Name="NodeClean" AfterTargets="CoreClean">
+    <RemoveDir Directories="node_modules;wwwroot/client" />
 
-  <Target Name="copy_sass_to_the_right_place" AfterTargets="DartSass_Build">
-    <Copy SourceFiles="Client/styles/main.css" DestinationFolder="wwwroot/client/" />
+    <ItemGroup>
+        <FilesToDelete Include="**/*.css*"/>
+    </ItemGroup>   
+    <Delete Files="@(FilesToDelete)" />
+  </Target>
+
+  <Target Name="NodeInstall" BeforeTargets="Restore" Condition=" !Exists('node_modules') ">
+    <!-- Ensure Node.js is installed -->
+    <Exec Command="node --version" ContinueOnError="true">
+      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+    </Exec>
+    <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
+    <Message Importance="high" Text="Restoring dependencies using 'npm'." />
+    <Exec Command="npm ci --no-fund" />
+  </Target>
+
+  <Target Name="PreBuildNode" BeforeTargets="PreBuildEvent">
+    <Message Importance="high" Text="Compiling sass files." />
+    <Exec Command="npm run build" />
   </Target>
 
 </Project>

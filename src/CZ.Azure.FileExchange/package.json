@@ -1,0 +1,28 @@
+{
+  "name": "cz.azure.fileexchange",
+  "version": "1.0.0",
+  "description": "This project provides a website to share fast files with the help of azure.\r You get an upload website that looks like this:",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "engines": {
+    "node": ">=19.0.0"
+  },
+  "scripts": {
+    "build": "sass Styles/main.scss:wwwroot/client/main.css Pages:Pages Shared:Shared Components:Components --style compressed --load-path=Styles"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codez-one/CZ.Azure.FileExchange.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/codez-one/CZ.Azure.FileExchange/issues"
+  },
+  "homepage": "https://github.com/codez-one/CZ.Azure.FileExchange#readme",
+  "devDependencies": {
+    "sass": "^1.56.2"
+  }
+}

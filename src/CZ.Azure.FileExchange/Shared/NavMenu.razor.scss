@@ -1,11 +1,11 @@
-@use '../abstracts/variables';
+@use 'abstracts/variables';
 
 nav{
     display: flex;
     justify-content: center;
     margin-top: 1em;
 
-    a{
+    ::deep a{
         color: var(--foregroundcolor);
         text-decoration: none;
         text-shadow: variables.$text-shadow;
