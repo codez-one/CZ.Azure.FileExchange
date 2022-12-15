@@ -78,7 +78,7 @@ public partial class Index
         return Task.CompletedTask;
     }
 
-    private class File
+    private sealed class File
     {
         public File(string name, IBrowserFile browserFile, long processedSize = 0)
         {
@@ -93,7 +93,7 @@ public partial class Index
         public long ProcessedSize { get; set; }
     }
 
-    private class ProgressHandler : IProgress<long>
+    private sealed class ProgressHandler : IProgress<long>
     {
         private readonly Index pageRef;
         private readonly File file;
