@@ -7,7 +7,7 @@
     "doc": "docs"
   },
   "engines": {
-    "node": ">=19.0.0"
+    "node": ">=18.12.1"
   },
   "scripts": {
     "build": "sass Styles/main.scss:wwwroot/client/main.css Pages:Pages Shared:Shared Components:Components --style compressed --load-path=Styles"
