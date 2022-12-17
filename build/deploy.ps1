@@ -19,7 +19,7 @@ param (
     # the version of your framework
     [Parameter(Mandatory = $false)]
     [string]
-    $apiFrameworkVersion = "6.0",
+    $apiFrameworkVersion = "6.0.0",
     # Set a custom working directory.
     [Parameter(Mandatory = $false)]
     [string]
