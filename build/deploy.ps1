@@ -217,5 +217,8 @@ while (
 if((Test-Path $workingDir)){
     Remove-Item -Recurse -Force $workingDir;
 }
+if($response.response.deploymentStatus -ne 'Succeeded'){
+    throw "The deployment failed. The reason was: $($response.response.errorDetails)";
+}
 $response.response.siteUrl;
 Write-Output "::set-output name=SiteUrl::$($response.response.siteUrl)";
