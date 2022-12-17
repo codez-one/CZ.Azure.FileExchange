@@ -12,6 +12,14 @@ param (
     [Parameter(Mandatory = $true)]
     [string]
     $apiBuildOutput,
+    # the framework your API is written in
+    [Parameter(Mandatory = $false)]
+    [string]
+    $apiFramework = "dotnet",
+    # the version of your framework
+    [Parameter(Mandatory = $false)]
+    [string]
+    $apiFrameworkVersion = "6.0",
     # Set a custom working directory.
     [Parameter(Mandatory = $false)]
     [string]
@@ -134,8 +142,8 @@ $metaDeployInforamtion = @{
         DefaultFileType         = "index.html";
         # this can be anything
         DeploymentProvider      = "myown";
-        FunctionLanguage        = "dotnet";
-        FunctionLanguageVersion = "6.0.0";
+        FunctionLanguage        = $apiFramework;
+        FunctionLanguageVersion = $apiFrameworkVersion;
         HasFunctions            = $true;
         HasRoutes               = $false;
         Status                  = "RequestingUpload";
