@@ -3,17 +3,16 @@ namespace CZ.Azure.FileExchange.Api;
 using System;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using global::Azure.Storage.Blobs;
 using global::Azure.Storage.Sas;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Extensions;
 using System.Net.Http;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Extensions;
+using Microsoft.Azure.Functions.Worker.Http;
 
 public class GenerateSas
 {
@@ -22,19 +21,20 @@ public class GenerateSas
     public GenerateSas(ILogger<GenerateSas> log) =>
         this.logger = log;
 
-    [FunctionName("GenerateSas")]
+    [Function("GenerateSas")]
     [OpenApiOperation(operationId: "Run")]
     [OpenApiParameter(name: "filecode", In = ParameterLocation.Query, Required = false, Type = typeof(string), Description = "The **code** parameter, that represent to get read access to stored files")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(string), Description = "The OK response")]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequestData req)
     {
         this.logger.LogInformation("Start generating SaS");
 
         var blobservice = new BlobServiceClient(GetEnvironmentVariable("StorageConnectionString"));
         Uri? uri;
         BlobContainerClient? blobContainerClient;
-        if (req.Query.TryGetValue("filecode", out var code))
+        var code = req.Url.ParseQueryString().Get("filecode");
+        if (code != null)
         {
             blobContainerClient = blobservice.GetBlobContainerClient(code);
             uri = this.GetServiceSasUriForContainer(blobContainerClient, BlobSasPermissions.Read | BlobSasPermissions.List);
