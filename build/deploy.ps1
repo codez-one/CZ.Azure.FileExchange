@@ -146,6 +146,7 @@ $metaDeployInforamtion = @{
         FunctionLanguageVersion = $apiFrameworkVersion;
         HasFunctions            = $true;
         HasRoutes               = $false;
+        ServerRenderFramework   = "StaticWebApp"
         Status                  = "RequestingUpload";
     }
 }
