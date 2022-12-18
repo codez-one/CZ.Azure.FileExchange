@@ -144,6 +144,7 @@ $metaDeployInforamtion = @{
         DeploymentProvider      = "myown";
         FunctionLanguage        = $apiFramework;
         FunctionLanguageVersion = $apiFrameworkVersion;
+        HasDataApiFiles         = $false
         HasFunctions            = $true;
         HasRoutes               = $false;
         ServerRenderFramework   = "StaticWebApp"
