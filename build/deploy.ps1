@@ -141,7 +141,7 @@ $metaDeployInforamtion = @{
         ConfiguredRoles         = @();
         DefaultFileType         = "index.html";
         # this can be anything
-        DeploymentProvider      = "myown";
+        DeploymentProvider      = "Custom";
         FunctionLanguage        = $apiFramework;
         FunctionLanguageVersion = $apiFrameworkVersion;
         HasDataApiFiles         = $false
