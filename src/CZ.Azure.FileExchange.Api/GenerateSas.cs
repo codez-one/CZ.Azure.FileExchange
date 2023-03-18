@@ -25,7 +25,7 @@ public class GenerateSas
     [OpenApiOperation(operationId: "Run")]
     [OpenApiParameter(name: "filecode", In = ParameterLocation.Query, Required = false, Type = typeof(string), Description = "The **code** parameter, that represent to get read access to stored files")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(string), Description = "The OK response")]
-    public async Task<IActionResult> Run(
+    public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequestData req)
     {
         this.logger.LogInformation("Start generating SaS");
@@ -49,10 +49,17 @@ public class GenerateSas
         if (uri == null)
         {
             this.logger.LogError("Failed to generate the Sas token");
-            return new BadRequestObjectResult(new StringContent("Failed to greate SaS token to upload your files. Please try again."));
+            var badResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+            var badContent = new StringContent("Failed to greate SaS token to upload your files. Please try again.");
+            badResponse.Headers.Add("Content-Type", badContent.Headers.ContentType?.ToString());
+            badResponse.WriteString(await badContent.ReadAsStringAsync());
+            return badResponse;
         }
-
-        return new OkObjectResult(uri.ToString());
+        var okResponse = req.CreateResponse(HttpStatusCode.OK);
+        var content = new StringContent(uri.ToString());
+        okResponse.Headers.Add("Content-Type", content.Headers.ContentType?.ToString());
+        okResponse.WriteString(await content.ReadAsStringAsync());
+        return okResponse;
     }
 
     private static string GetEnvironmentVariable(string name) =>
