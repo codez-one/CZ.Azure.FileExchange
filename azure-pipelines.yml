@@ -28,6 +28,10 @@ stages:
     - task: UseDotNet@2
       inputs:
         packageType: 'sdk'
+        version: '7.x'
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
         version: '6.x'
     - task: DotNetCoreCLI@2
       displayName: Build
@@ -50,7 +54,7 @@ stages:
       inputs:
         command: 'publish'
         projects: $(workingDirectory)/src/CZ.Azure.FileExchange.Api/CZ.Azure.FileExchange.Api.csproj
-        arguments: --output $(workingDirectory)/api --configuration Release
+        arguments: --output $(workingDirectory)/api --configuration Release --runtime win-x86 --no-self-contained
         zipAfterPublish: false
         workingDirectory: $(workingDirectory)/src/CZ.Azure.FileExchange.Api/
         publishWebProjects: false

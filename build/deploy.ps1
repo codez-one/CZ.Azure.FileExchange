@@ -12,6 +12,14 @@ param (
     [Parameter(Mandatory = $true)]
     [string]
     $apiBuildOutput,
+    # the framework your API is written in
+    [Parameter(Mandatory = $false)]
+    [string]
+    $apiFramework = "dotnet",
+    # the version of your framework
+    [Parameter(Mandatory = $false)]
+    [string]
+    $apiFrameworkVersion = "6.0.0",
     # Set a custom working directory.
     [Parameter(Mandatory = $false)]
     [string]
@@ -133,11 +141,13 @@ $metaDeployInforamtion = @{
         ConfiguredRoles         = @();
         DefaultFileType         = "index.html";
         # this can be anything
-        DeploymentProvider      = "myown";
-        FunctionLanguage        = "dotnet";
-        FunctionLanguageVersion = "6.0.0";
+        DeploymentProvider      = "Custom";
+        FunctionLanguage        = $apiFramework;
+        FunctionLanguageVersion = $apiFrameworkVersion;
+        HasDataApiFiles         = $false
         HasFunctions            = $true;
         HasRoutes               = $false;
+        ServerRenderFramework   = "StaticWebApp"
         Status                  = "RequestingUpload";
     }
 }
@@ -208,6 +218,9 @@ while (
 }
 if((Test-Path $workingDir)){
     Remove-Item -Recurse -Force $workingDir;
+}
+if($response.response.deploymentStatus -ne 'Succeeded'){
+    throw "The deployment failed. The reason was: $($response.response.errorDetails)";
 }
 $response.response.siteUrl;
 Write-Output "::set-output name=SiteUrl::$($response.response.siteUrl)";
