@@ -46,6 +46,16 @@ dotnet publish .\src\CZ.Azure.FileExchange\ -o temp/fe
 dotnet publish .\src\CZ.Azure.FileExchange.Api\ -o temp/api
 ```
 
+### Run the App local
+
+Pull and run [azurite](https://github.com/azure/azurite) on your local machine. (it will simulate azure blob storage on your machine)
+
+```powershell
+docker run -p 10000:10000 -p 10001:10001 -p 10002:10002 mcr.microsoft.com/azure-storage/azurite
+```
+
+
+
 ### Publish the App
 
 ```powershell
