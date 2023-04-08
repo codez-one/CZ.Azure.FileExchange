@@ -31,15 +31,42 @@ public partial class Download
         }
     }
 
-    private string GetFileLink(string blobName)
+    private async Task<string> GetFileLink(string blobName, bool isArchived)
     {
         if (this.sasUrl is null)
         {
             throw new ArgumentException("Sas uri is null");
         }
-
         var parts = this.sasUrl.ToString().Split('?');
         return $"{parts[0]}/{blobName}?{parts[1]}";
+    }
+
+    /// <summary>
+    /// This method helps to get things from the archival tier back to the hot tier
+    /// </summary>
+    /// <param name="blobName">The name of the blob</param>
+    /// <returns></returns>
+    private async Task StartRetrivalFromArchive(string blobName)
+    {
+        var blob = this.blobs.Single(b => b.Name.Equals(blobName, StringComparison.OrdinalIgnoreCase));
+
+        if (blob.Properties.AccessTier != AccessTier.Archive)
+        {
+            /// TODO: make a message that a not archived blob can't be retrieved
+            return;
+        }
+        var blobContainerClient = new BlobContainerClient(this.sasUrl);
+        var blobClient = blobContainerClient.GetBlobClient(blob.Name);
+        var blobProperties = await blobClient.GetPropertiesAsync();
+        if (
+            string.Equals(blobProperties.Value.ArchiveStatus, "rehydrate-pending-to-hot", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(blobProperties.Value.ArchiveStatus, "rehydrate-pending-to-cool", StringComparison.OrdinalIgnoreCase)
+        )
+        {
+            /// TODO: make some message that the blob can't be double retrieved
+            /// and return
+        }
+        await blobClient.SetAccessTierAsync(AccessTier.Hot);
     }
 
     /// <summary>
