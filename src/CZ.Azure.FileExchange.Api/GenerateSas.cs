@@ -3,7 +3,6 @@ namespace CZ.Azure.FileExchange.Api;
 using System;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
