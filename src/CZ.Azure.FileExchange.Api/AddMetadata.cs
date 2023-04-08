@@ -1,26 +1,18 @@
-using System;
-using System.IO;
-using System.Net;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
-using Azure.Messaging.EventGrid.Models;
-using Newtonsoft.Json;
-using Azure.Messaging.EventGrid;
-using Microsoft.Azure.Functions.Worker.Http;
-using System.Text.Json;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Diagnostics;
-using System.Text.Json.Serialization;
-using Azure.Messaging.EventGrid.SystemEvents;
-using Microsoft.AspNetCore.Mvc.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
-using Azure.Storage.Blobs;
-using System.Globalization;
-
 namespace CZ.Azure.FileExchange.Api
 {
+    using System;
+    using System.Net;
+    using Microsoft.Azure.Functions.Worker;
+    using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.OpenApi.Models;
+    using global::Azure.Messaging.EventGrid;
+    using Microsoft.Azure.Functions.Worker.Http;
+    using static System.Runtime.InteropServices.JavaScript.JSType;
+    using global::Azure.Messaging.EventGrid.SystemEvents;
+    using global::Azure.Storage.Blobs;
+    using System.Globalization;
+
     public class AddMetadata
     {
         private readonly ILogger _logger;
