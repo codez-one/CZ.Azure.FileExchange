@@ -36,7 +36,8 @@ public class GenerateSas
         if (code != null)
         {
             blobContainerClient = blobservice.GetBlobContainerClient(code);
-            uri = this.GetServiceSasUriForContainer(blobContainerClient, BlobSasPermissions.Read | BlobSasPermissions.List);
+            // To move archive blobs from archive to hot, we need write rights.
+            uri = this.GetServiceSasUriForContainer(blobContainerClient);
         }
         else
         {
