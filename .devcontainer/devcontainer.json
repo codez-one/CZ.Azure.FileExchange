@@ -37,7 +37,8 @@
 				"ms-dotnettools.csharp",
 				"ms-azuretools.vscode-bicep",
 				"cschleiden.vscode-github-actions",
-				"ms-azure-devops.azure-pipelines"
+				"ms-azure-devops.azure-pipelines",
+				"github.vscode-github-actions"
 			]
 		}
 	},
