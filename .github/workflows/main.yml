@@ -10,6 +10,36 @@ on:
       - main
 
 jobs:
+  # this hack was stolen from here: https://github.com/orgs/community/discussions/25669
+  check:
+    name: Check if main.bicep was touched
+    outputs:
+      run_job: ${{ steps.check_files.outputs.run_job }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+      - name: check modified files
+        id: check_files
+        run: |
+          echo "=============== list modified files ==============="
+          git diff --name-only HEAD^ HEAD
+          
+          echo "========== check paths of modified files =========="
+          git diff --name-only HEAD^ HEAD &gt; files.txt
+          while IFS= read -r file
+          do
+            echo $file
+            if [[ $file != main.bicep ]]; then
+              echo "This modified file is not under the 'db' folder."
+              echo "::set-output name=run_job::false"
+              break
+            else
+              echo "::set-output name=run_job::true"
+            fi
+          done &lt; files.txt
   build_and_deploy_job:
     if: (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: windows-latest
@@ -42,11 +72,16 @@ jobs:
         run: dotnet publish -c Release ./src/CZ.Azure.FileExchange/ -o temp/frontend
       - name: Publish API
         run: dotnet publish -c Release ./src/CZ.Azure.FileExchange.Api/ -o temp/api --runtime win-x86 --no-self-contained
-      - name: Add Artifact
+      - name: Add Artifact App
         uses: actions/upload-artifact@v3
         with:
           name: artifact
           path: temp/
+      - name: Add Artifact script
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifact
+          path: ./build/deploy.ps1
       - name: Deploy
         id: deploy
         run: './build/deploy.ps1 -Token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }} -appBuildOutput ./temp/frontend/wwwroot/ -apiBuildOutput ./temp/api/  -envrionmentName ${{ github.event.number }} -pullrequestTitle "${{steps.Pr-Title.outputs.pr-title}}" -branchName ${{ github.head_ref	}} -apiFramework "dotnetisolated" -apiFrameworkVersion "7.0" -Verbose'
@@ -77,7 +112,10 @@ jobs:
       - name: Deploy
         run: './build/deploy.ps1 -Token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }} -appBuildOutput ./temp/frontend/wwwroot/ -apiBuildOutput ./temp/api/  -envrionmentName ${{ github.event.number }} -pullrequestTitle "${{steps.Pr-Title.outputs.pr-title}}" -branchName ${{ github.head_ref	}} -apiFramework "dotnetisolated" -apiFrameworkVersion "7.0" -Verbose -Delete'
         shell: pwsh
-  compile_bicep:
+  compile_and_deploy_bicep:
+    needs: check
+    if: (needs.check.outputs.run_job == 'true')
+    environment: 'Azure Infra'
     runs-on: 'ubuntu-latest'
     name: compile main bicep
     steps:
@@ -85,6 +123,46 @@ jobs:
         with:
           submodules: true
       - name: compile bicep
-        uses: Azure/bicep-build-action@v1.0.0
+        uses: Azure/bicep-build-action@v1.0.1
         with:
           bicepFilePath: main.bicep
+          outputFilePath: azuredeploy.json
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} 
+          enable-AzPSSession: true
+      - name: "Deploy ARM template to Azure"
+        uses: Azure/arm-deploy@v1        
+        inputs:
+          scope: resourcegroup
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          resourceGroupName: 'pajetestfileshare'
+          region: 'West Europe'
+          template: 'azuredeploy.json'
+          parameters: name=pajetestfileshare
+          deploymentMode: 'Incremental'
+  deploy_app_only:
+    needs: check
+    if: (needs.check.outputs.run_job == 'false')
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: artifact
+      - name: Deploy
+        id: deploy
+        run: './build/deploy.ps1 -Token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }} -appBuildOutput ./frontend/wwwroot/ -apiBuildOutput ./api/  -envrionmentName ${{ github.event.number }} -pullrequestTitle "${{steps.Pr-Title.outputs.pr-title}}" -branchName ${{ github.head_ref	}} -apiFramework "dotnetisolated" -apiFrameworkVersion "7.0" -Verbose'
+        shell: pwsh
+      - name: comment-pr
+        uses: JoseThen/comment-pr@v1.1.1
+        with:
+          comment: Your website can be viewed here '${{ steps.deploy.outputs.SiteUrl }}'
+          # Github Token for authentication
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+    
+      
