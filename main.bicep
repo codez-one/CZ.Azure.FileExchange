@@ -1,5 +1,7 @@
 param name string
 param location string  = resourceGroup().location
+@secure()
+param githubToken string = 'empty'
 
 resource storage 'Microsoft.Storage/storageAccounts@2021-06-01' = {
   name: uniqueString(resourceGroup().id, '7f358957-c1be-48ad-8902-808564e0556f')
@@ -50,7 +52,7 @@ resource roleassignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
 }
 
 // wie sollen wir hier den GitHub token bekommen?
-resource deployWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+resource deployWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(githubToken != 'empty') {
   name: 'deployWebApp'
   kind: 'AzurePowerShell'
   location: location

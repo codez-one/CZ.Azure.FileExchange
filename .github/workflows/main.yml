@@ -33,7 +33,7 @@ jobs:
           do
             echo $file
             if [[ $file != main.bicep ]]; then
-              echo "This modified file is not under the 'db' folder."
+              echo "The file main.bicep was touch, need approval of admin."
               echo "::set-output name=run_job::false"
               break
             else
@@ -114,7 +114,7 @@ jobs:
         shell: pwsh
   compile_and_deploy_bicep:
     needs: check
-    if: (needs.check.outputs.run_job == 'true')
+    if: (needs.check.outputs.run_job == 'false')
     environment: 'Azure Infra'
     runs-on: 'ubuntu-latest'
     name: compile main bicep
@@ -146,7 +146,6 @@ jobs:
           deploymentMode: 'Incremental'
   deploy_app_only:
     needs: check
-    if: (needs.check.outputs.run_job == 'false')
     runs-on: 'ubuntu-latest'
     steps:
       - name: download Artifact
