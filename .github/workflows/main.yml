@@ -136,7 +136,7 @@ jobs:
           enable-AzPSSession: true
       - name: "Deploy ARM template to Azure"
         uses: Azure/arm-deploy@v1        
-        inputs:
+        with:
           scope: resourcegroup
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: 'pajetestfileshare'
