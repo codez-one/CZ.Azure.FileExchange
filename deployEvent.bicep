@@ -1,5 +1,5 @@
 param location string  = resourceGroup().location
-param hostname string
+param baseUrl string
 param storageAccountName string = uniqueString(resourceGroup().id, '7f358957-c1be-48ad-8902-808564e0556f')
 
 var storageAccountId = resourceId(resourceGroup().name, 'Microsoft.Storage/storageAccounts' , storageAccountName)
@@ -20,7 +20,7 @@ resource archiveEvent 'Microsoft.EventGrid/eventSubscriptions@2023-06-01-preview
     destination: {
       endpointType: 'WebHook'
       properties: {
-        endpointUrl: 'https://${hostname}/api/AddMetadata'
+        endpointUrl: '${baseUrl}/api/AddMetadata'
       }
     }
     filter: {

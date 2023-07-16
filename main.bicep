@@ -186,7 +186,7 @@ module events 'deployEvent.bicep' = {
     deployWebApp
   ]
   params: {
-    hostname: website.properties.defaultHostname
+    baseUrl: 'https://${website.properties.defaultHostname}'
     location: location
     storageAccountName: storage.name
   }
