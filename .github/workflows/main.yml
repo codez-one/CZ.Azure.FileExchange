@@ -10,36 +10,6 @@ on:
       - main
 
 jobs:
-  # this hack was stolen from here: https://github.com/orgs/community/discussions/25669
-  check:
-    name: Check if main.bicep was touched
-    outputs:
-      run_job: ${{ steps.check_files.outputs.run_job }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 2
-      - name: check modified files
-        id: check_files
-        run: |
-          echo "=============== list modified files ==============="
-          git diff --name-only HEAD^ HEAD
-
-          echo "========== check paths of modified files =========="
-          git diff --name-only HEAD^ HEAD &gt; files.txt
-          while IFS= read -r file
-          do
-            echo $file
-            if [[ $file != main.bicep ]]; then
-              echo "The file main.bicep was touch, need approval of admin."
-              echo "::set-output name=run_job::false"
-              break
-            else
-              echo "::set-output name=run_job::true"
-            fi
-          done &lt; files.txt
   build_and_deploy_job:
     if: (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: windows-latest
