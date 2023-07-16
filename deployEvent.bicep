@@ -6,7 +6,7 @@ param storageAccountName string = uniqueString(resourceGroup().id, '7f358957-c1b
 var eventName = !empty(prNumber) ? '${prNumber}-back-from-archive' : 'back-from-archive'
 var storageAccountId = resourceId(resourceGroup().name, 'Microsoft.Storage/storageAccounts' , storageAccountName)
 
-resource eventTopic 'Microsoft.EventGrid/systemTopics@2023-06-01-preview' = {
+resource eventTopic 'Microsoft.EventGrid/systemTopics@2022-06-15' = {
   name: 'storageEvents'
   location: location
   properties: {
@@ -15,7 +15,7 @@ resource eventTopic 'Microsoft.EventGrid/systemTopics@2023-06-01-preview' = {
   }
 }
 
-resource archiveEvent 'Microsoft.EventGrid/eventSubscriptions@2023-06-01-preview' = {
+resource archiveEvent 'Microsoft.EventGrid/eventSubscriptions@2022-06-15' = {
   name: eventName
   scope: eventTopic
   properties: {
