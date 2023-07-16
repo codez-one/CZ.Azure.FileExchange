@@ -4,6 +4,7 @@ param location string  = resourceGroup().location
 param githubToken string = ''
 param githubRunId string = ''
 param githubArtifactName string = 'artifact'
+param stage string = 'main'
 
 resource storage 'Microsoft.Storage/storageAccounts@2021-06-01' = {
   name: uniqueString(resourceGroup().id, '7f358957-c1be-48ad-8902-808564e0556f')
@@ -14,7 +15,6 @@ resource storage 'Microsoft.Storage/storageAccounts@2021-06-01' = {
   }
   properties: {}
 }
-
 
 resource website 'Microsoft.Web/staticSites@2021-02-01' = {
   name: name
@@ -54,7 +54,7 @@ resource roleassignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
 }
 
 // wie sollen wir hier den GitHub token bekommen?
-resource deployWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(!empty(githubToken)  && !empty(githubRunId)) {
+resource deployWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(!empty(githubToken)) {
   name: 'deployWebApp'
   kind: 'AzurePowerShell'
   location: location
@@ -67,7 +67,7 @@ resource deployWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(!e
   properties: {
     azPowerShellVersion: '8.3'
     retentionInterval: 'P1D'
-    arguments: '-githubToken ${githubToken} -githubRunId ${githubRunId} -githubArtifactName ${githubArtifactName} -staticWebAppName ${name} -resourceGroupName ${resourceGroup().name}'
+    arguments: '-githubToken ${githubToken} -githubRunId ${githubRunId} -githubArtifactName ${githubArtifactName} -stage ${stage} -staticWebAppName ${name} -resourceGroupName ${resourceGroup().name}'
     scriptContent: '''
     param(
       [string] $githubToken,
@@ -76,19 +76,28 @@ resource deployWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(!e
       [string] $staticWebAppName,
       [string] $resourceGroupName
     )
-    # download artifact
-    $result = Invoke-RestMethod https://api.github.com/repos/codez-one/CZ.Azure.FileExchange/actions/runs/$githubRunId/artifacts -Headers @{"Authorization" = "token $githubToken"; "X-GitHub-Api-Version" = "2022-11-28" }
-    $result
-    $artifact = $result.artifacts | ?{$_.name -eq $githubArtifactName}
-    if($artifact -eq $null) {throw "artifact doesn't exsist."}
-    $artifact.archive_download_url
-    Invoke-WebRequest $artifact.archive_download_url -Headers @{"Authorization" = "token $githubToken"; "X-GitHub-Api-Version" = "2022-11-28" } -OutFile artifact.zip
-    Expand-Archive artifact.zip
-    Get-ChildItem
-    ls
-    Set-Location ./artifact/
-    ls
-    Get-ChildItem
+    if($stage -eq 'main'){
+      # take stable releases here
+      $result = Invoke-RestMethod https://api.github.com/repos/codez-one/CZ.Azure.FileExchange/releases/latest -Headers @{"Authorization" = "token $githubToken"; "X-GitHub-Api-Version" = "2022-11-28" }
+      $frontendDownloadUrl = ($result.assets | ? {$_.name -like 'Frontend.zip'}).browser_download_url;
+      $apiDownloadUrl = ($result.assets | ? {$_.name -like 'API.zip'}).browser_download_url;
+      $deployDownloadUrl = ($result.assets | ? {$_.name -like 'deploy.ps1'}).browser_download_url
+      New-Item -Type Directory artifact;
+      Set-Location ./artifact/
+      Invoke-WebRequest $frontendDownloadUrl -Headers @{"Authorization" = "token $githubToken"; "X-GitHub-Api-Version" = "2022-11-28" } -OutFile frontend.zip
+      Invoke-WebRequest $apiDownloadUrl -Headers @{"Authorization" = "token $githubToken"; "X-GitHub-Api-Version" = "2022-11-28" } -OutFile api.zip
+      Invoke-WebRequest $deployDownloadUrl -Headers @{"Authorization" = "token $githubToken"; "X-GitHub-Api-Version" = "2022-11-28" } -OutFile deploy.ps1
+    }else{
+      # download artifact from pipeline run
+      $result = Invoke-RestMethod https://api.github.com/repos/codez-one/CZ.Azure.FileExchange/actions/runs/$githubRunId/artifacts -Headers @{"Authorization" = "token $githubToken"; "X-GitHub-Api-Version" = "2022-11-28" }
+      $result
+      $artifact = $result.artifacts | ?{$_.name -eq $githubArtifactName}
+      if($artifact -eq $null) {throw "artifact doesn't exsist."}
+      $artifact.archive_download_url
+      Invoke-WebRequest $artifact.archive_download_url -Headers @{"Authorization" = "token $githubToken"; "X-GitHub-Api-Version" = "2022-11-28" } -OutFile artifact.zip
+      Expand-Archive artifact.zip
+      Set-Location ./artifact/
+    }
     # deploy to webapp
     $secretProperties = Get-AzStaticWebAppSecret -Name $staticWebAppName -ResourceGroupName $resourceGroupName
     $token = $secretProperties.Property.Item("apiKey")
