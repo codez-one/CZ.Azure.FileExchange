@@ -91,7 +91,7 @@ jobs:
           path: ./build/deploy.ps1
       - name: Deploy
         id: deploy
-        run: './build/deploy.ps1 -Token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }} -appBuildOutput ./temp/frontend.zip -apiBuildOutput ./temp/api.zip -envrionmentName ${{ github.event.number }} -pullrequestTitle "${{steps.Pr-Title.outputs.pr-title}}" -branchName ${{ github.head_ref	}} -apiFramework "dotnetisolated" -apiFrameworkVersion "7.0" -Verbose'
+        run: './build/deploy.ps1 -Token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }} -appBuildOutput ./temp/frontend.zip -apiBuildOutput ./temp/api.zip -workingDir $pwd -envrionmentName ${{ github.event.number }} -pullrequestTitle "${{steps.Pr-Title.outputs.pr-title}}" -branchName ${{ github.head_ref	}} -apiFramework "dotnetisolated" -apiFrameworkVersion "7.0" -Verbose'
         shell: pwsh
       - name: comment-pr
         uses: JoseThen/comment-pr@v1.1.1
