@@ -43,6 +43,7 @@ jobs:
   build_and_deploy_job:
     if: (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: windows-latest
+    environment: 'Azure Infra'
     name: Build and Deploy Job
     steps:
       - uses: actions/checkout@v2
@@ -93,6 +94,28 @@ jobs:
         id: deploy
         run: './build/deploy.ps1 -Token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }} -appBuildOutput ./temp/frontend.zip -apiBuildOutput ./temp/api.zip -workingDir $pwd -envrionmentName ${{ github.event.number }} -pullrequestTitle "${{steps.Pr-Title.outputs.pr-title}}" -branchName ${{ github.head_ref	}} -apiFramework "dotnetisolated" -apiFrameworkVersion "7.0" -Verbose'
         shell: pwsh
+      - name: compile bicep
+        uses: Azure/bicep-build-action@v1.0.1
+        with:
+          bicepFilePath: deployEvent.bicep
+          outputFilePath: eventazuredeploy.json
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+      - name: "Deploy ARM template to Azure"
+        uses: Azure/arm-deploy@v1
+        with:
+          scope: resourcegroup
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          resourceGroupName: 'pajetestfileshare'
+          region: 'West Europe'
+          template: 'eventazuredeploy.json'
+          parameters: baseUrl=${{ steps.deploy.outputs.SiteUrl }} prNumber=${{github.event.number}}
+          deploymentMode: 'Incremental'
       - name: comment-pr
         uses: JoseThen/comment-pr@v1.1.1
         with:
@@ -119,53 +142,3 @@ jobs:
       - name: Deploy
         run: './build/deploy.ps1 -Token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }} -appBuildOutput ./temp/frontend/wwwroot/ -apiBuildOutput ./temp/api/  -envrionmentName ${{ github.event.number }} -pullrequestTitle "${{steps.Pr-Title.outputs.pr-title}}" -branchName ${{ github.head_ref	}} -apiFramework "dotnetisolated" -apiFrameworkVersion "7.0" -Verbose -Delete'
         shell: pwsh
-  compile_and_deploy_bicep:
-    needs: check
-    if: (needs.check.outputs.run_job == 'false')
-    environment: 'Azure Infra'
-    runs-on: 'ubuntu-latest'
-    name: compile main bicep
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: compile bicep
-        uses: Azure/bicep-build-action@v1.0.1
-        with:
-          bicepFilePath: main.bicep
-          outputFilePath: azuredeploy.json
-      - name: Login to Azure
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          enable-AzPSSession: true
-      - name: "Deploy ARM template to Azure"
-        uses: Azure/arm-deploy@v1
-        with:
-          scope: resourcegroup
-          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          resourceGroupName: 'pajetestfileshare'
-          region: 'West Europe'
-          template: 'azuredeploy.json'
-          parameters: name=pajetestfileshare
-          deploymentMode: 'Incremental'
-  deploy_app_only:
-    needs: check
-    runs-on: 'ubuntu-latest'
-    steps:
-      - name: download Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: artifact
-      - name: Deploy
-        id: deploy
-        run: './build/deploy.ps1 -Token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }} -appBuildOutput ./frontend/wwwroot/ -apiBuildOutput ./api/  -envrionmentName ${{ github.event.number }} -pullrequestTitle "${{steps.Pr-Title.outputs.pr-title}}" -branchName ${{ github.head_ref	}} -apiFramework "dotnetisolated" -apiFrameworkVersion "7.0" -Verbose'
-        shell: pwsh
-      - name: comment-pr
-        uses: JoseThen/comment-pr@v1.1.1
-        with:
-          comment: Your website can be viewed here '${{ steps.deploy.outputs.SiteUrl }}'
-          # Github Token for authentication
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
