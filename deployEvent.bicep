@@ -23,6 +23,8 @@ resource archiveEvent 'Microsoft.EventGrid/eventSubscriptions@2022-06-15' = {
       endpointType: 'WebHook'
       properties: {
         endpointUrl: '${baseUrl}/api/AddMetadata'
+        maxEventsPerBatch: 1
+        preferredBatchSizeInKilobytes: 64
       }
     }
     filter: {
@@ -31,11 +33,8 @@ resource archiveEvent 'Microsoft.EventGrid/eventSubscriptions@2022-06-15' = {
         'Microsoft.Storage.BlobTierChanged'
       ]
       enableAdvancedFilteringOnArrays: true
+      advancedFilters: []
     }
     eventDeliverySchema: 'EventGridSchema'
-    retryPolicy: {
-      maxDeliveryAttempts: 30
-      eventTimeToLiveInMinutes: 1440
-    }
   }
 }
