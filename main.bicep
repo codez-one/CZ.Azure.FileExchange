@@ -1,7 +1,9 @@
 param name string
 param location string  = resourceGroup().location
 @secure()
-param githubToken string = 'empty'
+param githubToken string = ''
+param githubRunId string = ''
+param githubArtifactName string = 'artifact'
 
 resource storage 'Microsoft.Storage/storageAccounts@2021-06-01' = {
   name: uniqueString(resourceGroup().id, '7f358957-c1be-48ad-8902-808564e0556f')
@@ -52,7 +54,7 @@ resource roleassignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
 }
 
 // wie sollen wir hier den GitHub token bekommen?
-resource deployWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(githubToken != 'empty') {
+resource deployWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(!empty(githubToken)  && !empty(githubRunId)) {
   name: 'deployWebApp'
   kind: 'AzurePowerShell'
   location: location
@@ -65,14 +67,33 @@ resource deployWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(gi
   properties: {
     azPowerShellVersion: '8.3'
     retentionInterval: 'P1D'
-    arguments: '-githubToken ${resourceGroup().name}'
+    arguments: '-githubToken ${githubToken} -githubRunId ${githubRunId} -githubArtifactName ${githubArtifactName} -staticWebAppName ${name} -resourceGroupName ${resourceGroup().name}'
     scriptContent: '''
-    param([string] $githubToken)
-    # install github cli
-    bash -c 'type -p curl >/dev/null || (apt update && apt install curl -y) && curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg && echo \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main\" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null && apt update && apt install gh -y'
+    param(
+      [string] $githubToken,
+      [string] $githubRunId,
+      [string] $githubArtifactName,
+      [string] $staticWebAppName,
+      [string] $resourceGroupName
+    )
     # download artifact
-    gh auth login --with-token $githubToken
-    gh run download RUN_ID -n ARTIFACT_NAME
+    $result = Invoke-RestMethod https://api.github.com/repos/codez-one/CZ.Azure.FileExchange/actions/runs/$githubRunId/artifacts -Headers @{"Authorization" = "token $githubToken"; "X-GitHub-Api-Version" = "2022-11-28" }
+    $result
+    $artifact = $result.artifacts | ?{$_.name -eq $githubArtifactName}
+    if($artifact -eq $null) {throw "artifact doesn't exsist."}
+    $artifact.archive_download_url
+    Invoke-WebRequest $artifact.archive_download_url -Headers @{"Authorization" = "token $githubToken"; "X-GitHub-Api-Version" = "2022-11-28" } -OutFile artifact.zip
+    Expand-Archive artifact.zip
+    Get-ChildItem
+    ls
+    Set-Location ./artifact/
+    ls
+    Get-ChildItem
+    # deploy to webapp
+    $secretProperties = Get-AzStaticWebAppSecret -Name $staticWebAppName -ResourceGroupName $resourceGroupName
+    $token = $secretProperties.Property.Item("apiKey")
+    $token.Substring(0,5)
+    ./deploy.ps1 -Token $token -appBuildOutput ./frontend.zip -apiBuildOutput ./api.zip -apiFramework "dotnetisolated" -apiFrameworkVersion "7.0" -workingDir $pwd -Verbose
     '''
   }
 }
