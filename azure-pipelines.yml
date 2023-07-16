@@ -109,6 +109,7 @@ stages:
               assets: |
                 $(Pipeline.Workspace)/drop/*.zip
                 $(Pipeline.Workspace)/drop/azuredeploy.json
+                $(Pipeline.Workspace)/drop/deploy.ps1
               repositoryName: $(Build.Repository.Name)
               assetUploadMode: replace
               title: $(Build.BuildNumber)
