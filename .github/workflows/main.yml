@@ -26,7 +26,7 @@ jobs:
         run: |
           echo "=============== list modified files ==============="
           git diff --name-only HEAD^ HEAD
-          
+
           echo "========== check paths of modified files =========="
           git diff --name-only HEAD^ HEAD &gt; files.txt
           while IFS= read -r file
@@ -72,6 +72,13 @@ jobs:
         run: dotnet publish -c Release ./src/CZ.Azure.FileExchange/ -o temp/frontend
       - name: Publish API
         run: dotnet publish -c Release ./src/CZ.Azure.FileExchange.Api/ -o temp/api --runtime win-x86 --no-self-contained
+      - name: zip outputs
+        shell: pwsh
+        run: |
+          Compress-Archive temp/frontend/wwwroot/** temp/frontend.zip;
+          Compress-Archive temp/api/** temp/api.zip;
+          Remove-Item -Recurse -Force temp/frontend
+          Remove-Item -Recurse -Force temp/api
       - name: Add Artifact App
         uses: actions/upload-artifact@v3
         with:
@@ -84,7 +91,7 @@ jobs:
           path: ./build/deploy.ps1
       - name: Deploy
         id: deploy
-        run: './build/deploy.ps1 -Token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }} -appBuildOutput ./temp/frontend/wwwroot/ -apiBuildOutput ./temp/api/  -envrionmentName ${{ github.event.number }} -pullrequestTitle "${{steps.Pr-Title.outputs.pr-title}}" -branchName ${{ github.head_ref	}} -apiFramework "dotnetisolated" -apiFrameworkVersion "7.0" -Verbose'
+        run: './build/deploy.ps1 -Token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }} -appBuildOutput ./temp/frontend.zip -apiBuildOutput ./temp/api.zip -envrionmentName ${{ github.event.number }} -pullrequestTitle "${{steps.Pr-Title.outputs.pr-title}}" -branchName ${{ github.head_ref	}} -apiFramework "dotnetisolated" -apiFrameworkVersion "7.0" -Verbose'
         shell: pwsh
       - name: comment-pr
         uses: JoseThen/comment-pr@v1.1.1
@@ -132,10 +139,10 @@ jobs:
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} 
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           enable-AzPSSession: true
       - name: "Deploy ARM template to Azure"
-        uses: Azure/arm-deploy@v1        
+        uses: Azure/arm-deploy@v1
         with:
           scope: resourcegroup
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -162,6 +169,3 @@ jobs:
           comment: Your website can be viewed here '${{ steps.deploy.outputs.SiteUrl }}'
           # Github Token for authentication
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-    
-      
