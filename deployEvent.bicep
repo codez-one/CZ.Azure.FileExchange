@@ -15,9 +15,9 @@ resource eventTopic 'Microsoft.EventGrid/systemTopics@2022-06-15' = {
   }
 }
 
-resource archiveEvent 'Microsoft.EventGrid/eventSubscriptions@2022-06-15' = {
+resource archiveEvent 'Microsoft.EventGrid/systemTopics/eventSubscriptions@2022-06-15' = {
   name: eventName
-  scope: eventTopic
+  parent: eventTopic
   properties: {
     destination: {
       endpointType: 'WebHook'
@@ -36,5 +36,6 @@ resource archiveEvent 'Microsoft.EventGrid/eventSubscriptions@2022-06-15' = {
       advancedFilters: []
     }
     eventDeliverySchema: 'EventGridSchema'
+    labels: []
   }
 }
