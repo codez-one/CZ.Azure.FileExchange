@@ -1,5 +1,11 @@
 param name string
 param location string  = resourceGroup().location
+@secure()
+param githubToken string
+param branch string
+param runId int
+param prNumber string
+
 
 module basics 'deployBasics.bicep' = {
   name: 'basics'
@@ -12,6 +18,11 @@ module basics 'deployBasics.bicep' = {
 module webappDeployment 'deploayWebApp.bicep' = {
   name: 'deployment'
   params: {
+    githubToken: githubToken
+    branch: branch
+    githubArtifactName: 'artifact'
+    githubRunId: string(runId)
+    prNumber: prNumber
     webSiteName: basics.outputs.website.name
     location: location
   }
