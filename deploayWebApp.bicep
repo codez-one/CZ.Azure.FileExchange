@@ -67,7 +67,7 @@ resource deployPrWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if 
   }
 }
 
-resource deployWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+resource deployWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if (empty(prNumber) || empty(branch) || empty(githubToken)){
   name: 'deployWebApp'
   kind: 'AzurePowerShell'
   dependsOn: [

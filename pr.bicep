@@ -16,7 +16,7 @@ module basics 'deployBasics.bicep' = {
 }
 
 module webappDeployment 'deploayWebApp.bicep' = {
-  name: 'deployment'
+  name: 'webappdeployment'
   params: {
     githubToken: githubToken
     branch: branch
