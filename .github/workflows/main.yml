@@ -15,9 +15,10 @@ jobs:
     runs-on: windows-latest
     environment: 'Azure Infra'
     permissions:
-      contents: write
+      contents: read
       pages: write
       id-token: write
+      pull-requests: write
     name: Build and Deploy Job
     steps:
       - uses: actions/checkout@v2
