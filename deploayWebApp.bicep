@@ -48,7 +48,7 @@ resource deployPrWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if 
       [string] $githubArtifactName,
       [string] $staticWebAppName,
       [string] $resourceGroupName,
-      [string] $branch
+      [string] $branch,
       [string] $prNumber
     )
     # download artifact from pipeline run
