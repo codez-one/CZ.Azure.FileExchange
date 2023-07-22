@@ -23,7 +23,7 @@ module webappDeployment 'deploayWebApp.bicep' = {
     githubArtifactName: 'artifact'
     githubRunId: string(runId)
     prNumber: prNumber
-    webSiteName: basics.outputs.website.name
+    webSiteName: last(split(basics.outputs.website.resourceId, '/'))
     location: location
   }
 }
