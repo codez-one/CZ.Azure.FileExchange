@@ -10,44 +10,16 @@ on:
       - main
 
 jobs:
-  build_and_deploy_job:
+  build_only:
     if: (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: windows-latest
-    environment: 'Azure Infra'
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-      pull-requests: write
-    name: Build and Deploy Job
     steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: Get PR title
-        id: Pr-Title
-        run: |
-         title=$(gh pr view ${{ github.event.number }} --repo ${{ github.repository }} | head -n 1)
-         echo "::set-output name=pr-title::$(echo $title)"
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        continue-on-error: true
-      - name: Setup .NET Core SDK
-        uses: actions/setup-dotnet@v1.9.0
-        with:
-          # Optional SDK version(s) to use. If not provided, will install global.json version when available. Examples: 2.2.104, 3.1, 3.1.x
-          dotnet-version: |
-            7.0.x
-            6.0.x
       - name: Restore dependencies
         run: dotnet restore
-      - name: Build
-        run: dotnet build -c Release --no-restore
       - name: Publish Frontend
-        run: dotnet publish -c Release ./src/CZ.Azure.FileExchange/ -o temp/frontend
+        run: dotnet publish -c Release ./src/CZ.Azure.FileExchange/ -o temp/frontend --no-restore
       - name: Publish API
-        run: dotnet publish -c Release ./src/CZ.Azure.FileExchange.Api/ -o temp/api --runtime win-x86 --no-self-contained
+        run: dotnet publish -c Release ./src/CZ.Azure.FileExchange.Api/ -o temp/api --runtime win-x86 --no-self-contained --no-restore
       - name: zip outputs
         shell: pwsh
         run: |
@@ -65,15 +37,27 @@ jobs:
         with:
           name: artifact
           path: ./build/deploy.ps1
-      - name: Deploy
-        id: deploy
-        run: './build/deploy.ps1 -Token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KINDDUNE004C2C103 }} -appBuildOutput ./temp/frontend.zip -apiBuildOutput ./temp/api.zip -workingDir $pwd -envrionmentName ${{ github.event.number }} -pullrequestTitle "${{steps.Pr-Title.outputs.pr-title}}" -branchName ${{ github.head_ref	}} -apiFramework "dotnetisolated" -apiFrameworkVersion "7.0" -Verbose'
-        shell: pwsh
+  deploy_job:
+    if: (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    needs:
+      - build_only
+    environment: 'Azure Infra'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+      pull-requests: write
+    name: Deploy Job
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
       - name: compile bicep
         uses: Azure/bicep-build-action@v1.0.1
         with:
-          bicepFilePath: deployEvent.bicep
-          outputFilePath: eventazuredeploy.json
+          bicepFilePath: pr.bicep
+          outputFilePath: pr.json
       - name: Login to Azure
         uses: azure/login@v1
         with:
@@ -86,15 +70,22 @@ jobs:
         with:
           scope: resourcegroup
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          resourceGroupName: 'pajetestfileshare'
+          resourceGroupName: 'pajetestfileshare2'
           region: 'West Europe'
-          template: 'eventazuredeploy.json'
-          parameters: baseUrl=${{ steps.deploy.outputs.SiteUrl }} prNumber=${{github.event.number}}
+          template: 'pr.json'
+          parameters: name=pajetestfileshare2 githubToken=${{secrets.GITHUB_TOKEN}} branch=${{github.head_ref}} runId=${{github.run_id}} prNumber=${{github.event.number}}
           deploymentMode: 'Incremental'
+      - name: Get Website url
+        uses: Azure/powershell@v1
+        id: websiteUrl
+        with:
+          inlineScript: |
+            $hostname = (Get-AzStaticWebAppBuild -Name pajetestfileshare2 -ResourceGroupName pajetestfileshare2 -EnvironmentName ${{github.event.number}}).Hostname
+            "hostname=$hostname" >> $env:GITHUB_OUTPUT
       - name: comment-pr
         uses: JoseThen/comment-pr@v1.1.1
         with:
-          comment: Your website can be viewed here '${{ steps.deploy.outputs.SiteUrl }}'
+          comment: Your website can be viewed here '${{ steps.websiteUrl.outputs.hostname }}'
           # Github Token for authentication
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   close_pull_request_job:
