@@ -80,7 +80,7 @@ resource deployPrWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if 
       ./deploy.ps1 -Token $token -appBuildOutput ./frontend.zip -apiBuildOutput ./api.zip -apiFramework "dotnetisolated" -apiFrameworkVersion "7.0" -workingDir $pwd -branchName $branch -envrionmentName $prNumber -Verbose
       # for azure Deployment Script output
       $DeploymentScriptOutputs = @{}
-      $DeploymentScriptOutputs['staticWebUrl'] = (Get-AzStaticWebAppBuild -Name pajetestfileshare2 -ResourceGroupName pajetestfileshare2 -EnvironmentName 32).Hostname
+      $DeploymentScriptOutputs['staticWebUrl'] = (Get-AzStaticWebAppBuild -Name $staticWebAppName -ResourceGroupName $resourceGroupName -EnvironmentName $prNumber).Hostname
     }catch{
       Start-Sleep 30;
       Write-Host "there was an error";
