@@ -17,10 +17,6 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
-      - name: Expose GitHub Runtime
-        uses: crazy-max/ghaction-github-runtime@v2
-      - name: Publish Frontend
-        run: ls env:\
       - name: Publish Frontend
         run: dotnet publish -c Release ./src/CZ.Azure.FileExchange/ -o temp/frontend
       - name: Publish API
@@ -70,6 +66,8 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           enable-AzPSSession: true
+      - name: Expose GitHub Runtime
+        uses: crazy-max/ghaction-github-runtime@v2
       - name: "Deploy ARM template to Azure"
         uses: Azure/arm-deploy@v1
         with:
@@ -78,7 +76,7 @@ jobs:
           resourceGroupName: 'pajetestfileshare2'
           region: 'West Europe'
           template: 'pr.json'
-          parameters: name=pajetestfileshare2 githubToken=${{secrets.GITHUB_TOKEN}} branch=${{github.head_ref}} runId=${{github.run_id}} prNumber=${{github.event.number}} githubRuntimeApiUrl=${{github.env.ACTIONS_RUNTIME_URL}}
+          parameters: name=pajetestfileshare2 githubToken=${{secrets.GITHUB_TOKEN}} branch=${{github.head_ref}} runId=${{github.run_id}} prNumber=${{github.event.number}} githubRuntimeApiUrl=${{env.ACTIONS_RUNTIME_URL}}
           deploymentMode: 'Incremental'
       - name: Get Website url
         uses: Azure/powershell@v1
