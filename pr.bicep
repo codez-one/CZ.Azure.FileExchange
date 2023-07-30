@@ -37,6 +37,7 @@ module events 'deployEvent.bicep' = {
   ]
   params: {
     baseUrl: 'https://${basics.outputs.website.properties.defaultHostname}'
+    prNumber: prNumber
     location: location
     storageAccountName: last(split(basics.outputs.storage.resourceId, '/'))
   }
