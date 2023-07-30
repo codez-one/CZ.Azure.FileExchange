@@ -18,6 +18,8 @@ jobs:
         with:
           submodules: true
       - name: Publish Frontend
+        run: echo "$ACTIONS_RUNTIME_URL"
+      - name: Publish Frontend
         run: dotnet publish -c Release ./src/CZ.Azure.FileExchange/ -o temp/frontend
       - name: Publish API
         run: dotnet publish -c Release ./src/CZ.Azure.FileExchange.Api/ -o temp/api --runtime win-x86 --no-self-contained
@@ -74,7 +76,7 @@ jobs:
           resourceGroupName: 'pajetestfileshare2'
           region: 'West Europe'
           template: 'pr.json'
-          parameters: name=pajetestfileshare2 githubToken=${{secrets.GITHUB_TOKEN}} branch=${{github.head_ref}} runId=${{github.run_id}} prNumber=${{github.event.number}} githubRuntimeApiUrl=${{github.env.ACTIONS_RUNTIME_URL}}}
+          parameters: name=pajetestfileshare2 githubToken=${{secrets.GITHUB_TOKEN}} branch=${{github.head_ref}} runId=${{github.run_id}} prNumber=${{github.event.number}} githubRuntimeApiUrl=${{github.env.ACTIONS_RUNTIME_URL}}
           deploymentMode: 'Incremental'
       - name: Get Website url
         uses: Azure/powershell@v1
