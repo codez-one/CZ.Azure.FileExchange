@@ -80,7 +80,7 @@ resource deployPrWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if 
       ./deploy.ps1 -Token $token -appBuildOutput ./frontend.zip -apiBuildOutput ./api.zip -apiFramework "dotnetisolated" -apiFrameworkVersion "7.0" -workingDir $pwd -branchName $branch -envrionmentName $prNumber -Verbose
       # for azure Deployment Script output
       $DeploymentScriptOutputs = @{}
-      $DeploymentScriptOutputs['staticWebUrl'] = (Get-AzStaticWebAppBuild -Name $staticWebAppName -ResourceGroupName $resourceGroupName -EnvironmentName $prNumber).Hostname
+      $DeploymentScriptOutputs['staticWebUrl'] = "https://$((Get-AzStaticWebAppBuild -Name $staticWebAppName -ResourceGroupName $resourceGroupName -EnvironmentName $prNumber).Hostname)"
     }catch{
       Start-Sleep 30;
       Write-Host "there was an error";
@@ -130,6 +130,8 @@ resource deployWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if (e
     $token = $secretProperties.Property.Item("apiKey")
     $token.Substring(0,5)
     ./deploy.ps1 -Token $token -appBuildOutput ./frontend.zip -apiBuildOutput ./api.zip -apiFramework "dotnetisolated" -apiFrameworkVersion "7.0" -workingDir $pwd -Verbose
+    $DeploymentScriptOutputs = @{}
+    $DeploymentScriptOutputs['staticWebUrl'] = "https://$((Get-AzStaticWebApp -Name pajetestfileshare2 -ResourceGroupName pajetestfileshare2).DefaultHostname)"
     '''
   }
 }
