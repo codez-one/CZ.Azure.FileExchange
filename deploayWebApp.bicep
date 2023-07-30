@@ -42,7 +42,7 @@ resource deployPrWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if 
   properties: {
     azPowerShellVersion: '8.3'
     retentionInterval: 'P1D'
-    arguments: '-githubToken ${githubToken} -staticWebAppName ${webSiteName} -resourceGroupName ${resourceGroup().name} -branch ${branch} -githubRunId ${githubRunId} -githubArtifactName ${githubArtifactName} -prNumber ${prNumber} -$githubRuntimeApiUrl ${githubRuntimeApiUrl}'
+    arguments: '-githubToken ${githubToken} -staticWebAppName ${webSiteName} -resourceGroupName ${resourceGroup().name} -branch ${branch} -githubRunId ${githubRunId} -githubArtifactName ${githubArtifactName} -prNumber ${prNumber} -githubRuntimeApiUrl ${githubRuntimeApiUrl}'
     scriptContent: '''
     param(
       [string] $githubToken,
