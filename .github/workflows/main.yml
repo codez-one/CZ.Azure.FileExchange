@@ -18,7 +18,7 @@ jobs:
         with:
           submodules: true
       - name: Publish Frontend
-        run: echo "$ACTIONS_RUNTIME_URL"
+        run: ls env:\
       - name: Publish Frontend
         run: dotnet publish -c Release ./src/CZ.Azure.FileExchange/ -o temp/frontend
       - name: Publish API
