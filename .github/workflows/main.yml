@@ -82,6 +82,7 @@ jobs:
         uses: Azure/powershell@v1
         id: websiteUrl
         with:
+          azPSVersion: 10.1.0
           inlineScript: |
             $hostname = (Get-AzStaticWebAppBuild -Name pajetestfileshare2 -ResourceGroupName pajetestfileshare2 -EnvironmentName ${{github.event.number}}).Hostname
             "hostname=$hostname" >> $env:GITHUB_OUTPUT
