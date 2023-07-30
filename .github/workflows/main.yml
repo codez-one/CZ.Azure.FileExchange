@@ -85,7 +85,7 @@ jobs:
           azPSVersion: 10.1.0
           inlineScript: |
             $hostname = (Get-AzStaticWebAppBuild -Name pajetestfileshare2 -ResourceGroupName pajetestfileshare2 -EnvironmentName ${{github.event.number}}).Hostname
-            "hostname=$hostname" >> $env:GITHUB_OUTPUT
+            "hostname=https://$hostname" >> $env:GITHUB_OUTPUT
       - name: comment-pr
         uses: JoseThen/comment-pr@v1.1.1
         with:
