@@ -5,6 +5,7 @@ param githubToken string
 param branch string
 param runId int
 param prNumber string
+param githubRuntimeApiUrl string
 
 
 module basics 'deployBasics.bicep' = {
@@ -20,6 +21,7 @@ module webappDeployment 'deploayWebApp.bicep' = {
   params: {
     githubToken: githubToken
     branch: branch
+    githubRuntimeApiUrl: githubRuntimeApiUrl
     githubArtifactName: 'artifact'
     githubRunId: string(runId)
     prNumber: prNumber

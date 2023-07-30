@@ -1,10 +1,12 @@
 param location string = resourceGroup().location
 param webSiteName string
 
+
 @secure()
 param githubToken string = ''
 param prNumber string = ''
 param branch string = ''
+param githubRuntimeApiUrl string = ''
 param githubRunId string = ''
 param githubArtifactName string = ''
 
@@ -40,11 +42,12 @@ resource deployPrWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if 
   properties: {
     azPowerShellVersion: '8.3'
     retentionInterval: 'P1D'
-    arguments: '-githubToken ${githubToken} -staticWebAppName ${webSiteName} -resourceGroupName ${resourceGroup().name} -branch ${branch} -githubRunId ${githubRunId} -githubArtifactName ${githubArtifactName} -prNumber ${prNumber}'
+    arguments: '-githubToken ${githubToken} -staticWebAppName ${webSiteName} -resourceGroupName ${resourceGroup().name} -branch ${branch} -githubRunId ${githubRunId} -githubArtifactName ${githubArtifactName} -prNumber ${prNumber} -$githubRuntimeApiUrl ${githubRuntimeApiUrl}'
     scriptContent: '''
     param(
       [string] $githubToken,
       [string] $githubRunId,
+      [string] $githubRuntimeApiUrl,
       [string] $githubArtifactName,
       [string] $staticWebAppName,
       [string] $resourceGroupName,
@@ -52,7 +55,8 @@ resource deployPrWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if 
       [string] $prNumber
     )
     # download artifact from pipeline run
-    $result = Invoke-RestMethod https://api.github.com/repos/codez-one/CZ.Azure.FileExchange/actions/runs/$githubRunId/artifacts -Headers @{"Authorization" = "token $githubToken"; "X-GitHub-Api-Version" = "2022-11-28" }
+    $result = Invoke-RestMethod $githubRuntimeApiUrl/_apis/pipelines/workflows/$githubRunId/artifacts -Headers @{"Authorization" = "token $githubToken"; "X-GitHub-Api-Version" = "2022-11-28" }
+
     $result
     $artifact = $result.artifacts | ?{$_.name -eq $githubArtifactName}
     if($artifact -eq $null) {throw "artifact doesn't exsist."}
