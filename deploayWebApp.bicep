@@ -54,25 +54,35 @@ resource deployPrWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if 
       [string] $branch,
       [string] $prNumber
     )
-    # download artifact from pipeline run
-    $result = Invoke-RestMethod "$($githubRuntimeApiUrl)_apis/pipelines/workflows/$githubRunId/artifacts" -Headers @{"Authorization" = "Bearer $githubToken"; "X-GitHub-Api-Version" = "2022-11-28" }
-    $result
-    $artifact = $result.value | ?{$_.name -eq $githubArtifactName}
-    if($artifact -eq $null) {throw "artifact doesn't exsist."}
-    $artifact.fileContainerResourceUrl
-    $listOfArtifacts = Invoke-RestMethod $artifact.fileContainerResourceUrl -Headers @{"Authorization" = "Bearer $githubToken"; "X-GitHub-Api-Version" = "2022-11-28" }
-    $listOfArtifacts = $listOfArtifacts.value
-    $listOfArtifacts |%{
-      if($_.itemType -eq 'file'){
-        Invoke-WebRequest $_.contentLocation -Headers @{"Authorization" = "Bearer $githubToken"; "X-GitHub-Api-Version" = "2022-11-28" } -OutFile $_.path
-      }else{
-        New-Item -Type Directory $_.path -Force
+    try{
+      # download artifact from pipeline run
+      $workflowArtifactUrl = "$($githubRuntimeApiUrl)_apis/pipelines/workflows/$githubRunId/artifacts";
+      Write-Output "all artifacts: $workflowArtifactUrl";
+      $result = Invoke-RestMethod $workflowArtifactUrl -Headers @{"Authorization" = "Bearer $githubToken"; "X-GitHub-Api-Version" = "2022-11-28" }
+      Write-Output $result;
+      $artifact = $result.value | ?{$_.name -eq $githubArtifactName}
+      if($artifact -eq $null) {throw "artifact doesn't exsist."}
+      Write-Output "ContainerURL: $($artifact.fileContainerResourceUrl)";
+      $listOfArtifacts = Invoke-RestMethod $artifact.fileContainerResourceUrl -Headers @{"Authorization" = "Bearer $githubToken"; "X-GitHub-Api-Version" = "2022-11-28" }
+      $listOfArtifacts = $listOfArtifacts.value
+      $listOfArtifacts |%{
+        $item = $_;
+        Write-Output "try to download: $($item.path)";
+        if($item.itemType -eq 'file'){
+          Invoke-WebRequest $item.contentLocation -Headers @{"Authorization" = "Bearer $githubToken"; "X-GitHub-Api-Version" = "2022-11-28" } -OutFile $item.path
+        }else{
+          New-Item -Type Directory $item.path -Force
+        }
       }
+      Set-Location ./artifact/
+      $secretProperties = Get-AzStaticWebAppSecret -Name $staticWebAppName -ResourceGroupName $resourceGroupName
+      $token = $secretProperties.Property.Item("apiKey")
+      ./deploy.ps1 -Token $token -appBuildOutput ./frontend.zip -apiBuildOutput ./api.zip -apiFramework "dotnetisolated" -apiFrameworkVersion "7.0" -workingDir $pwd -branchName $branch -envrionmentName $prNumber -Verbose
+    }catch{
+      Start-Sleep 30;
+      Write-Host "there was an error";
+      Write-Host $_;
     }
-    Set-Location ./artifact/
-    $secretProperties = Get-AzStaticWebAppSecret -Name $staticWebAppName -ResourceGroupName $resourceGroupName
-    $token = $secretProperties.Property.Item("apiKey")
-    ./deploy.ps1 -Token $token -appBuildOutput ./frontend.zip -apiBuildOutput ./api.zip -apiFramework "dotnetisolated" -apiFrameworkVersion "7.0" -workingDir $pwd -branchName $branch -envrionmentName $prNumber -Verbose
     '''
   }
 }
