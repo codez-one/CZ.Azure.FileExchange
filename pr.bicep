@@ -31,7 +31,7 @@ module webappDeployment 'deploayWebApp.bicep' = {
 }
 
 module events 'deployEvent.bicep' = {
-  name: 'archival event deployment'
+  name: 'archivalventdeployment'
   dependsOn: [
     webappDeployment
   ]
