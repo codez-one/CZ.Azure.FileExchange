@@ -228,6 +228,4 @@ if($response.response.deploymentStatus -ne 'Succeeded'){
 $response.response.siteUrl;
 # for github actions
 Write-Output "::set-output name=SiteUrl::$($response.response.siteUrl)";
-# for azure Deployment Script output
-$DeploymentScriptOutputs = @{}
-$DeploymentScriptOutputs['staticWebUrl'] = $output
+
