@@ -55,7 +55,7 @@ resource deployPrWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if 
       [string] $prNumber
     )
     # download artifact from pipeline run
-    $result = Invoke-RestMethod $githubRuntimeApiUrl/_apis/pipelines/workflows/$githubRunId/artifacts -Headers @{"Authorization" = "token $githubToken"; "X-GitHub-Api-Version" = "2022-11-28" }
+    $result = Invoke-RestMethod "$($githubRuntimeApiUrl)_apis/pipelines/workflows/$githubRunId/artifacts" -Headers @{"Authorization" = "token $githubToken"; "X-GitHub-Api-Version" = "2022-11-28" }
 
     $result
     $artifact = $result.artifacts | ?{$_.name -eq $githubArtifactName}

@@ -76,7 +76,7 @@ jobs:
           resourceGroupName: 'pajetestfileshare2'
           region: 'West Europe'
           template: 'pr.json'
-          parameters: name=pajetestfileshare2 githubToken=${{secrets.GITHUB_TOKEN}} branch=${{github.head_ref}} runId=${{github.run_id}} prNumber=${{github.event.number}} githubRuntimeApiUrl=${{env.ACTIONS_RUNTIME_URL}}
+          parameters: name=pajetestfileshare2 githubToken=${{env.ACTIONS_RUNTIME_TOKEN}} branch=${{github.head_ref}} runId=${{github.run_id}} prNumber=${{github.event.number}} githubRuntimeApiUrl=${{env.ACTIONS_RUNTIME_URL}}
           deploymentMode: 'Incremental'
       - name: Get Website url
         uses: Azure/powershell@v1
