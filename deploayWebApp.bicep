@@ -130,3 +130,5 @@ resource deployWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if (e
     '''
   }
 }
+
+output staticWebAppHost string = (empty(prNumber) || empty(branch) || empty(githubToken)) ? deployWebApp.properties.outputs.staticWebUrl : deployPrWebApp.properties.outputs.staticWebUrl

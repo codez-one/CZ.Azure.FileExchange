@@ -226,4 +226,8 @@ if($response.response.deploymentStatus -ne 'Succeeded'){
     throw "The deployment failed. The reason was: $($response.response.errorDetails)";
 }
 $response.response.siteUrl;
+# for github actions
 Write-Output "::set-output name=SiteUrl::$($response.response.siteUrl)";
+# for azure Deployment Script output
+$DeploymentScriptOutputs = @{}
+$DeploymentScriptOutputs['staticWebUrl'] = $output
