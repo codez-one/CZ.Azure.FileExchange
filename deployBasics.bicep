@@ -54,6 +54,7 @@ resource storageBlobServiceConfig 'Microsoft.Storage/storageAccounts/blobService
             'GET'
             'PUT'
             'OPTIONS'
+            'HEAD'
           ]
           allowedHeaders: [
             '*'
