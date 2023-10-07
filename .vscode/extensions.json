@@ -1,0 +1,8 @@
+{
+    "recommendations": [
+        // these extensions are just recommended because they need subscribtion to work.
+        // we don't want to force contributors to pay.
+        "ms-dotnettools.csdevkit",
+        "ms-dotnettools.vscodeintellicode-csharp"
+    ]
+}

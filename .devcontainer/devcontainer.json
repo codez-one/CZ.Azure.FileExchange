@@ -38,7 +38,8 @@
 				"ms-azuretools.vscode-bicep",
 				"cschleiden.vscode-github-actions",
 				"ms-azure-devops.azure-pipelines",
-				"github.vscode-github-actions"
+				"github.vscode-github-actions",
+				"ms-vscode.powershell"
 			]
 		}
 	},
