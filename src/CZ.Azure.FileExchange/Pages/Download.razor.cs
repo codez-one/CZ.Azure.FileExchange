@@ -5,7 +5,7 @@ using global::Azure.Storage.Blobs.Models;
 public partial class Download
 {
     private string Code { get; set; } = string.Empty;
-    private readonly List<BlobItem> blobs = new();
+    private List<BlobItem> blobs = new();
     private Uri? sasUrl;
     private async Task LoadFiles()
     {
@@ -26,7 +26,7 @@ public partial class Download
 
         var blobContainerClient = new BlobContainerClient(this.sasUrl);
         // Clear the list before using it again.
-        this.blobs.Clear();
+        this.blobs = new();
         await foreach (var singleBlob in blobContainerClient.GetBlobsAsync())
         {
             this.blobs.Add(singleBlob);
