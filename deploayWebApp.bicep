@@ -131,7 +131,7 @@ resource deployWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if (e
     $token.Substring(0,5)
     ./deploy.ps1 -Token $token -appBuildOutput ./frontend.zip -apiBuildOutput ./api.zip -apiFramework "dotnetisolated" -apiFrameworkVersion "7.0" -workingDir $pwd -Verbose
     $DeploymentScriptOutputs = @{}
-    $DeploymentScriptOutputs['staticWebUrl'] = "https://$((Get-AzStaticWebApp -Name pajetestfileshare2 -ResourceGroupName pajetestfileshare2).DefaultHostname)"
+    $DeploymentScriptOutputs['staticWebUrl'] = "https://$((Get-AzStaticWebApp -Name $staticWebAppName -ResourceGroupName $resourceGroupName).DefaultHostname)"
     '''
   }
 }
