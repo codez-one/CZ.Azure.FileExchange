@@ -25,6 +25,8 @@ public partial class Download
         }
 
         var blobContainerClient = new BlobContainerClient(this.sasUrl);
+        // Clear the list before using it again.
+        this.blobs.Clear();
         await foreach (var singleBlob in blobContainerClient.GetBlobsAsync())
         {
             this.blobs.Add(singleBlob);
@@ -67,10 +69,31 @@ public partial class Download
             /// and return
         }
         await blobClient.SetAccessTierAsync(AccessTier.Hot);
+
+        var blobListEntryLocation = this.blobs.FindIndex(b => b.Name.Equals(blobName, StringComparison.OrdinalIgnoreCase));
+        if (blobListEntryLocation != -1)
+        {
+            var foundBlobs = 0;
+            await foreach (var updatedBlob in blobContainerClient.GetBlobsAsync(prefix: blobName))
+            {
+                if (foundBlobs > 0)
+                {
+                    // TODO: something weird happend. We found for our blob we are looking for, more then one real blob.
+                }
+                this.blobs[blobListEntryLocation] = updatedBlob;
+            }
+        }
+        else
+        {
+            //TODO: some odd state happend. We change the state of the blob but we can't find it in our blobs list
+        }
+
+
+
     }
 
     /// <summary>
-    /// Formats from bytes to KB,MB,GB,TB 
+    /// Formats from bytes to KB,MB,GB,TB
     /// stolen from: https://pastebin.com/x17NfmNJ
     /// </summary>
     /// <param name = "number">Bytes to format</param>
