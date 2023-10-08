@@ -5,7 +5,7 @@ using global::Azure.Storage.Blobs.Models;
 public partial class Download
 {
     private string Code { get; set; } = string.Empty;
-    private List<BlobItem> blobs = new();
+    private readonly List<BlobItem> blobs = new();
     private Uri? sasUrl;
     private async Task LoadFiles()
     {
@@ -14,19 +14,16 @@ public partial class Download
             throw new ArgumentException("You must enter a code");
         }
 
-        if (this.sasUrl == null)
-        {
-            this.sasUrl = new Uri(await this.http.GetStringAsync($"api/GenerateSas?filecode={this.Code}"));
-        }
+        // until we don't find a solution to map a SAS uri to a code, we should always get a new uri. (something like a dictionary is maybe to overkill here)
+        this.sasUrl = new Uri(await this.http.GetStringAsync($"api/GenerateSas?filecode={this.Code}"));
 
         if (this.sasUrl is null)
         {
             throw new ArgumentException("Sas uri is null");
         }
-
         var blobContainerClient = new BlobContainerClient(this.sasUrl);
         // Clear the list before using it again.
-        this.blobs = new();
+        this.blobs.Clear();
         await foreach (var singleBlob in blobContainerClient.GetBlobsAsync())
         {
             this.blobs.Add(singleBlob);
@@ -54,7 +51,10 @@ public partial class Download
 
         if (blob.Properties.AccessTier != AccessTier.Archive)
         {
-            /// TODO: make a message that a not archived blob can't be retrieved
+            this.logger.LogWarning($"User tried to retrieve a blob from archive, " +
+            $"but the blob was not in the archive tier." +
+            $"The blob: '{blob.Name}', tier: '{blob.Properties.AccessTier}'");
+            /// TODO: make a user visible message that a not archived blob can't be retrieved
             return;
         }
         var blobContainerClient = new BlobContainerClient(this.sasUrl);
@@ -65,7 +65,9 @@ public partial class Download
             string.Equals(blobProperties.Value.ArchiveStatus, "rehydrate-pending-to-cool", StringComparison.OrdinalIgnoreCase)
         )
         {
-            /// TODO: make some message that the blob can't be double retrieved
+            this.logger.LogWarning($"The blob '{blob.Name}' can't be retrieved because the " +
+            $"status is {blobProperties.Value.ArchiveStatus}.");
+            /// TODO: make a user visible message that the blob can't be double retrieved
             /// and return
         }
         await blobClient.SetAccessTierAsync(AccessTier.Hot);
@@ -79,6 +81,7 @@ public partial class Download
                 if (foundBlobs > 0)
                 {
                     // TODO: something weird happend. We found for our blob we are looking for, more then one real blob.
+                    this.logger.LogWarning($"The blob '{blobName}' exist more then ones. 🫨");
                 }
                 this.blobs[blobListEntryLocation] = updatedBlob;
             }
@@ -86,6 +89,7 @@ public partial class Download
         else
         {
             //TODO: some odd state happend. We change the state of the blob but we can't find it in our blobs list
+            this.logger.LogWarning($"The blob '{blobName}' doesn't exist. 🫨");
         }
 
 
