@@ -149,8 +149,3 @@ stages:
                   csmFile: '$(Pipeline.Workspace)/drop/azuredeploy.json'
                   overrideParameters: '-name pajetestfileshare'
                   deploymentMode: 'Incremental'
-              - task: PowerShell@2
-                displayName: "Deploy static webapp"
-                inputs:
-                  filePath: '$(Pipeline.Workspace)/drop/deploy.ps1'
-                  arguments: '-Token $(staticWebSiteSecret) -appBuildOutput $(Pipeline.Workspace)/drop/Frontend.zip -apiBuildOutput $(Pipeline.Workspace)/drop/API.zip -branchName main -apiFramework "dotnetisolated" -apiFrameworkVersion "7.0" -Verbose'
