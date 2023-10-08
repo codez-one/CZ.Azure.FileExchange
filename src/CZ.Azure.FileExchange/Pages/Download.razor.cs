@@ -30,7 +30,7 @@ public partial class Download
         }
     }
 
-    private async Task<string> GetFileLink(string blobName, bool isArchived)
+    private string GetFileLink(string blobName, bool isArchived)
     {
         if (this.sasUrl is null)
         {
