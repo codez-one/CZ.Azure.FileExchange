@@ -12,7 +12,7 @@ module basics 'deployBasics.bicep' = {
 module webappDeployment 'deploayWebApp.bicep' = {
   name: 'deployment'
   params: {
-    webSiteName: basics.outputs.website.name
+    webSiteName: last(split(basics.outputs.website.resourceId, '/'))
     location: location
   }
 }
@@ -23,8 +23,8 @@ module events 'deployEvent.bicep' = {
     webappDeployment
   ]
   params: {
-    baseUrl: 'https://${basics.outputs.website.properties.defaultHostname}'
+    baseUrl: webappDeployment.outputs.staticWebAppHost
     location: location
-    storageAccountName: basics.outputs.storage.name
+    storageAccountName: last(split(basics.outputs.storage.resourceId, '/'))
   }
 }

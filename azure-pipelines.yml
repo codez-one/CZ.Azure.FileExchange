@@ -122,7 +122,9 @@ stages:
               changeLogType: 'commitBased'
 - stage: ReleaseToAzure
   displayName: Release to Azure
-  dependsOn: Build
+  dependsOn:
+    - Build
+    - ReleaseToGithub
   condition: succeeded()
   jobs:
     - deployment: DeployAzure

@@ -109,10 +109,8 @@ resource deployWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if (e
     arguments: '-staticWebAppName ${webSiteName} -resourceGroupName ${resourceGroup().name}'
     scriptContent: '''
     param(
-      [string] $githubToken,
       [string] $staticWebAppName,
-      [string] $resourceGroupName,
-      [string] $branch
+      [string] $resourceGroupName
     )
     # take stable releases here
     $result = Invoke-RestMethod https://api.github.com/repos/codez-one/CZ.Azure.FileExchange/releases/latest -Headers @{"X-GitHub-Api-Version" = "2022-11-28" }
