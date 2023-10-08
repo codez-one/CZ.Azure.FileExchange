@@ -6,6 +6,14 @@
     "StorageConnectionString": {
       "type": "storage",
       "connectionId": "AzureWebJobsStorage"
+    },
+    "secrets1": {
+      "type": "secrets"
+    },
+    "storage1": {
+      "type": "storage",
+      "connectionId": "StorageConnectionString",
+      "dynamicId": null
     }
   }
 }

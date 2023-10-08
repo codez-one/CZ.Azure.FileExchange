@@ -3,7 +3,6 @@ namespace CZ.Azure.FileExchange.Api;
 using System;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
@@ -37,7 +36,8 @@ public class GenerateSas
         if (code != null)
         {
             blobContainerClient = blobservice.GetBlobContainerClient(code);
-            uri = this.GetServiceSasUriForContainer(blobContainerClient, BlobSasPermissions.Read | BlobSasPermissions.List);
+            // To move archive blobs from archive to hot, we need write rights.
+            uri = this.GetServiceSasUriForContainer(blobContainerClient);
         }
         else
         {

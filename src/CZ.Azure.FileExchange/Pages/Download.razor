@@ -1,31 +1,45 @@
-﻿@page "/download"
+@page "/download"
 @using global::Azure.Storage.Blobs
 @using global::Azure.Storage.Blobs.Models
 @inject HttpClient http
+@inject ILogger<Download> logger
 
 <PageTitle>Download - Azure File Exchange</PageTitle>
 
 <main class="download">
-<section>
-    <p>
-        Download your files by inserting your code below.
-    </p>
-</section>
+    <section>
+        <p>
+            Download your files by inserting your code below.
+        </p>
+    </section>
 
-<section class="download-input">
-	<label for="txtguid" class="floating-label">Enter the download ID</label>
-	<input type="text" id="txtguid" @bind="Code" @bind:event="oninput"/>
-	<button class="glass" disabled="@(!(Guid.TryParse( Code, out _)))" @onclick="LoadFiles">Load files</button>
-</section>
+    <section class="download-input">
+        <label for="txtguid" class="floating-label">Enter the download ID</label>
+        <input type="text" id="txtguid" @bind="Code" @bind:event="oninput" />
+        <button class="glass" disabled="@(!(Guid.TryParse( Code, out _)))" @onclick="LoadFiles">Load files</button>
+    </section>
+    <section>
+        @foreach (var blob in blobs)
+        {
+            <div class="file">
+                <div class="name">@blob.Name</div>
+                <div class="size">@AutoFileSize(blob.Properties.ContentLength)</div>
+                <div class="archive" title="If true, it can take up to 15h to retrive the data!">Archived:
+                    @(blob.Properties.AccessTier == AccessTier.Archive)</div>
+                @if (blob.Properties.AccessTier == AccessTier.Archive)
+                {
+                    <button @onclick="async () => await StartRetrivalFromArchive(blob.Name)" disabled="@(blob.Properties.ArchiveStatus == ArchiveStatus.RehydratePendingToHot ||
+                        blob.Properties.ArchiveStatus == ArchiveStatus.RehydratePendingToCool)">
+                        Retrive from archive
+                    </button>
+                }
+                else
+                {
+                    <div class="link"><a href="@GetFileLink(blob.Name, (blob.Properties.AccessTier == AccessTier.Archive))"><i
+                                class="gg-software-download"></i></a></div>
+                }
 
-<section>
-	@foreach (var blob in blobs)
-	{
-		<div class="file">
-			<div class="name">@blob.Name</div>
-			<div class="size">@AutoFileSize(blob.Properties.ContentLength)</div>
-			<div class="link"><a href="@GetFileLink(blob.Name)"><i class="gg-software-download"></i></a></div>
-		</div>
-	}
-</section>
+            </div>
+        }
+    </section>
 </main>

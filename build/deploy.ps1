@@ -24,6 +24,9 @@ param (
     [Parameter(Mandatory = $false)]
     [string]
     $workingDir = "$pwd/temp/temp/",
+    [Parameter(Mandatory = $false)]
+    [switch]
+    $cleanupWorkingDir,
     # Set a branch name that is used in the deciption of the envrionment
     [Parameter(Mandatory = $false)]
     [string]
@@ -104,7 +107,7 @@ if((Get-Item $apiBuildOutput).PSIsContainer){
     $apiZipToUpload = "$workingDir/api.zip";
     Compress-Archive "$apiBuildOutput\*" -DestinationPath $apiZipToUpload -Force;
 }else{
-    $apiZipToUpload = $apiBuildOutput;
+    $apiZipToUpload = "$workingDir/$apiBuildOutput";
 }
 $appZipToUpload = ([string]::Empty);
 if((Get-Item $appBuildOutput).PSIsContainer){
@@ -112,7 +115,7 @@ if((Get-Item $appBuildOutput).PSIsContainer){
     $appZipToUpload = "$workingDir/app.zip";
     Compress-Archive "$appBuildOutput\*" -DestinationPath $appZipToUpload -Force;
 }else{
-    $appZipToUpload = $appBuildOutput;
+    $appZipToUpload = "$workingDir/$appBuildOutput";
 }
 $apiHash = (Get-FileHash $apiZipToUpload -Algorithm MD5).Hash;
 
@@ -216,11 +219,13 @@ while (
     $response;
     Start-Sleep 2;
 }
-if((Test-Path $workingDir)){
+if($cleanupWorkingDir -and (Test-Path $workingDir)){
     Remove-Item -Recurse -Force $workingDir;
 }
 if($response.response.deploymentStatus -ne 'Succeeded'){
     throw "The deployment failed. The reason was: $($response.response.errorDetails)";
 }
 $response.response.siteUrl;
+# for github actions
 Write-Output "::set-output name=SiteUrl::$($response.response.siteUrl)";
+
