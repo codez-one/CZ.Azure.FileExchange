@@ -17,8 +17,15 @@
 			"version": "latest"
 		},
 		"ghcr.io/devcontainers/features/dotnet": {
-			"version": "7",
+			"version": "7.0",
+			"additionalVersions": "6.0",
 			"runtimeOnly": false
+		},
+		"ghcr.io/jlaundry/devcontainer-features/azure-functions-core-tools": {
+
+		},
+		"ghcr.io/devcontainers/features/docker-in-docker": {
+
 		}
 	},
 	"customizations": {
@@ -35,6 +42,7 @@
 			// Add the IDs of extensions you want installed when the container is created.
 			"extensions": [
 				"ms-dotnettools.csharp",
+				"ms-azuretools.vscode-azurefunctions",
 				"ms-azuretools.vscode-bicep",
 				"cschleiden.vscode-github-actions",
 				"ms-azure-devops.azure-pipelines",
@@ -68,7 +76,7 @@
 	//    * If only using Remote - Containers with a local container, uncomment this line instead:
 	//      "mounts": [ "source=${env:HOME}${env:USERPROFILE}/.aspnet/https,target=/home/vscode/.aspnet/https,type=bind" ],
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "dotnet restore",
+	"postCreateCommand": "dotnet dev-certs https --trust",
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "vscode"
 }

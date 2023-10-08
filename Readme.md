@@ -54,6 +54,31 @@ Pull and run [azurite](https://github.com/azure/azurite) on your local machine. 
 docker run -p 10000:10000 -p 10001:10001 -p 10002:10002 mcr.microsoft.com/azure-storage/azurite
 ```
 
+after that you need to configure cors rules on the storage emulator. You can do this with the following powershell script:
+
+```powershell
+$accountKey = (Read-Host -MaskInput -Prompt "Storage Account Key");
+$body = "<?xml version=`"1.0`" encoding=`"utf-8`"?>
+<StorageServiceProperties>
+    <Cors>
+        <CorsRule>
+            <AllowedOrigins>*</AllowedOrigins>
+            <AllowedMethods>GET,PUT,OPTIONS,HEAD</AllowedMethods>
+            <AllowedHeaders>*</AllowedHeaders>
+            <ExposedHeaders>*</ExposedHeaders>
+            <MaxAgeInSeconds>200</MaxAgeInSeconds>
+        </CorsRule>
+    </Cors>
+</StorageServiceProperties>"
+$lenght = $body.Length;
+$hmacsha = New-Object System.Security.Cryptography.HMACSHA256;
+$hmacsha.key = [Convert]::FromBase64String($accountKey);
+$date = (Get-Date).ToUniversalTime().ToString("R");
+$test = "PUT`n`n`n$lenght`n`n`n`n`n`n`n`n`nx-ms-date:$($date)`nx-ms-version:2018-03-28`n/devstoreaccount1/devstoreaccount1`ncomp:properties`nrestype:service";
+$signature1 = $hmacsha.ComputeHash([Text.Encoding]::UTF8.GetBytes($test));
+$auth = [System.Convert]::ToBase64String($signature1);
+Invoke-WebRequest -Method Put "http://127.0.0.1:10000/devstoreaccount1?restype=service&comp=properties" -Headers @{"Authorization" = "SharedKey devstoreaccount1:$($auth)"; "x-ms-version"= "2018-03-28"; "x-ms-date" = $date } -Body $body
+```
 
 
 ### Publish the App
