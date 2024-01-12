@@ -77,7 +77,7 @@ resource deployPrWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if 
       Set-Location ./artifact/
       $secretProperties = Get-AzStaticWebAppSecret -Name $staticWebAppName -ResourceGroupName $resourceGroupName
       $token = $secretProperties.Property.Item("apiKey")
-      ./deploy.ps1 -Token $token -appBuildOutput ./frontend.zip -apiBuildOutput ./api.zip -apiFramework "dotnetisolated" -apiFrameworkVersion "7.0" -workingDir $pwd -branchName $branch -envrionmentName $prNumber -Verbose
+      ./deploy.ps1 -Token $token -appBuildOutput ./frontend.zip -apiBuildOutput ./api.zip -apiFramework "dotnetisolated" -apiFrameworkVersion "8.0" -workingDir $pwd -branchName $branch -envrionmentName $prNumber -Verbose
       # for azure Deployment Script output
       $DeploymentScriptOutputs = @{}
       $DeploymentScriptOutputs['staticWebUrl'] = "https://$((Get-AzStaticWebAppBuild -Name $staticWebAppName -ResourceGroupName $resourceGroupName -EnvironmentName $prNumber).Hostname)"
