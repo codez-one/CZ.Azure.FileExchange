@@ -1,18 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
-
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="DartSassBuilder" Version="0.3.0-beta" />
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.14.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.1" PrivateAssets="all" />
+    <PackageReference Include="DartSassBuilder" Version="1.0.0" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.1" />
   </ItemGroup>
-
   <!-- SASS options -->
   <PropertyGroup>
     <!-- outputstyle option -->
@@ -27,9 +24,7 @@
     <!-- add files manually -->
     <SassFile Include="Client/**/*.scss" />
   </ItemGroup>
-
   <Target Name="copy_sass_to_the_right_place" AfterTargets="DartSass_Build">
     <Copy SourceFiles="Client/styles/main.css" DestinationFolder="wwwroot/client/" />
   </Target>
-
 </Project>
