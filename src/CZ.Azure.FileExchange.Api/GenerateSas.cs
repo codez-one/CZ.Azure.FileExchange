@@ -9,9 +9,9 @@ using Microsoft.OpenApi.Models;
 using global::Azure.Storage.Blobs;
 using global::Azure.Storage.Sas;
 using System.Net.Http;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Extensions;
-using Microsoft.Azure.Functions.Worker.Http;
 
 public class GenerateSas
 {
