@@ -52,13 +52,13 @@ public class GenerateSas
             var badResponse = req.CreateResponse(HttpStatusCode.BadRequest);
             var badContent = new StringContent("Failed to greate SaS token to upload your files. Please try again.");
             badResponse.Headers.Add("Content-Type", badContent.Headers.ContentType?.ToString());
-            badResponse.WriteString(await badContent.ReadAsStringAsync());
+            await badResponse.WriteStringAsync(await badContent.ReadAsStringAsync());
             return badResponse;
         }
         var okResponse = req.CreateResponse(HttpStatusCode.OK);
         var content = new StringContent(uri.ToString());
         okResponse.Headers.Add("Content-Type", content.Headers.ContentType?.ToString());
-        okResponse.WriteString(await content.ReadAsStringAsync());
+        await okResponse.WriteStringAsync(await content.ReadAsStringAsync());
         return okResponse;
     }
 

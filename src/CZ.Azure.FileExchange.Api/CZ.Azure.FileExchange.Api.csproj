@@ -8,6 +8,9 @@
     <UserSecretsId>84a717a7-ef76-47be-9101-2a62e74fd7d3</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
+      <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Azure.Messaging.EventGrid" Version="4.21.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
     <PackageReference Include="Azure.Storage.Files.Shares" Version="12.17.1" />
