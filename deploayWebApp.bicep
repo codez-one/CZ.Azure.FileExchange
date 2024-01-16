@@ -54,6 +54,8 @@ resource deployPrWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if 
       [string] $branch,
       [string] $prNumber
     )
+    # this makes it easier for us to read the log output
+    $PSStyle.OutputRendering = [System.Management.Automation.OutputRendering]::PlainText;
     try{
       # download artifact from pipeline run
       $workflowArtifactUrl = "$($githubRuntimeApiUrl)_apis/pipelines/workflows/$githubRunId/artifacts";
@@ -112,6 +114,8 @@ resource deployWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if (e
       [string] $staticWebAppName,
       [string] $resourceGroupName
     )
+    # this makes it easier for us to read the log output
+    $PSStyle.OutputRendering = [System.Management.Automation.OutputRendering]::PlainText;
     # take stable releases here
     $result = Invoke-RestMethod https://api.github.com/repos/codez-one/CZ.Azure.FileExchange/releases/latest -Headers @{"X-GitHub-Api-Version" = "2022-11-28" }
     $frontendDownloadUrl = ($result.assets | ? {$_.name -like 'Frontend.zip'}).browser_download_url;
