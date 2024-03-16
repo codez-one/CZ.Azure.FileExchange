@@ -1,6 +1,6 @@
 {
     "azureFunctions.projectSubpath": "src/CZ.Azure.FileExchange.Api",
-    "azureFunctions.deploySubpath": "src/CZ.Azure.FileExchange.Api/bin/Release/net7.0/publish",
+    "azureFunctions.deploySubpath": "src/CZ.Azure.FileExchange.Api/bin/Release/net8.0/publish",
     "azureFunctions.projectLanguage": "C#",
     "azureFunctions.projectRuntime": "~4",
     "debug.internalConsoleOptions": "neverOpen",

@@ -3,7 +3,6 @@ namespace CZ.Azure.FileExchange.Api;
 using System;
 using System.Net;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using global::Azure.Messaging.EventGrid;
@@ -11,16 +10,14 @@ using Microsoft.Azure.Functions.Worker.Http;
 using global::Azure.Messaging.EventGrid.SystemEvents;
 using global::Azure.Storage.Blobs;
 using System.Globalization;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 
-public class AddMetadata
+public class AddMetadata(ILoggerFactory loggerFactory)
 {
-    private readonly ILogger logger;
+    private readonly ILogger logger = loggerFactory.CreateLogger<AddMetadata>();
     private const string BlobChanged = "Microsoft.Storage.BlobTierChanged";
     private const string SetBlobTier = "SetBlobTier";
     private const string AzureValidation = "Microsoft.EventGrid.SubscriptionValidationEvent";
-
-
-    public AddMetadata(ILoggerFactory loggerFactory) => this.logger = loggerFactory.CreateLogger<AddMetadata>();
 
     [Function("AddMetadata")]
     [OpenApiOperation(operationId: "Run")]

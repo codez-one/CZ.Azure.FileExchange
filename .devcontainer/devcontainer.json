@@ -7,7 +7,7 @@
 		"args": {
 			// Update 'VARIANT' to pick a .NET Core version: 3.1, 5.0, 6.0
 			// Append -bullseye or -focal to pin to an OS version.
-			"VARIANT": "7.0",
+			"VARIANT": "8.0-jammy",
 			// Options
 			"NODE_VERSION": "lts/*"
 		}
@@ -17,7 +17,7 @@
 			"version": "latest"
 		},
 		"ghcr.io/devcontainers/features/dotnet": {
-			"version": "7.0",
+			"version": "8.0",
 			"additionalVersions": "6.0",
 			"runtimeOnly": false
 		},
@@ -47,7 +47,10 @@
 				"cschleiden.vscode-github-actions",
 				"ms-azure-devops.azure-pipelines",
 				"github.vscode-github-actions",
-				"ms-vscode.powershell"
+				"ms-vscode.powershell",
+				"ms-dotnettools.csdevkit",
+				"ms-dotnettools.vscodeintellicode-csharp",
+				"chneau.resource-monitor"
 			]
 		}
 	},

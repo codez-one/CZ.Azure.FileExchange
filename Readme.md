@@ -41,9 +41,9 @@ $token = Read-Host -MaskInput;
 > Important: If you want deploy this, build it on linux!
 
 ```powershell
-dotnet build
-dotnet publish .\src\CZ.Azure.FileExchange\ -o temp/fe
-dotnet publish .\src\CZ.Azure.FileExchange.Api\ -o temp/api
+dotnet build -c Release
+dotnet publish -c Release .\src\CZ.Azure.FileExchange\ -o temp/fe
+dotnet publish --runtime win-x86 --no-self-contained -c Release .\src\CZ.Azure.FileExchange.Api\ -o temp/api
 ```
 
 ### Run the App local
@@ -71,13 +71,14 @@ $body = "<?xml version=`"1.0`" encoding=`"utf-8`"?>
     </Cors>
 </StorageServiceProperties>"
 $lenght = $body.Length;
+$bodyMd5 = ([System.BitConverter]::ToString((New-Object -TypeName System.Security.Cryptography.MD5CryptoServiceProvider).ComputeHash((New-Object -TypeName System.Text.UTF8Encoding).GetBytes($body)))).Replace("-","");
 $hmacsha = New-Object System.Security.Cryptography.HMACSHA256;
 $hmacsha.key = [Convert]::FromBase64String($accountKey);
 $date = (Get-Date).ToUniversalTime().ToString("R");
-$test = "PUT`n`n`n$lenght`n`n`n`n`n`n`n`n`nx-ms-date:$($date)`nx-ms-version:2018-03-28`n/devstoreaccount1/devstoreaccount1`ncomp:properties`nrestype:service";
+$test = "PUT`n`n`n$lenght`n`napplication/x-www-form-urlencoded`n`n`n`n`n`n`nx-ms-date:$($date)`nx-ms-version:2024-02-04`n/devstoreaccount1/devstoreaccount1`ncomp:properties`nrestype:service";
 $signature1 = $hmacsha.ComputeHash([Text.Encoding]::UTF8.GetBytes($test));
 $auth = [System.Convert]::ToBase64String($signature1);
-Invoke-WebRequest -Method Put "http://127.0.0.1:10000/devstoreaccount1?restype=service&comp=properties" -Headers @{"Authorization" = "SharedKey devstoreaccount1:$($auth)"; "x-ms-version"= "2018-03-28"; "x-ms-date" = $date } -Body $body
+Invoke-WebRequest -Method Put "http://127.0.0.1:10000/devstoreaccount1?restype=service&comp=properties" -Headers @{"Authorization" = "SharedKey devstoreaccount1:$($auth)"; "x-ms-version"= "2024-02-04"; "x-ms-date" = $date } -Body $body
 ```
 
 

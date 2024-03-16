@@ -7,7 +7,7 @@ var host = new HostBuilder()
     {
         services.AddHttpClient();
     })
-    .ConfigureFunctionsWorkerDefaults(worker => worker.UseNewtonsoftJson())
+    .ConfigureFunctionsWebApplication(worker => worker.UseNewtonsoftJson())
     .ConfigureOpenApi()
     .Build();
 

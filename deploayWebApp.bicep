@@ -54,6 +54,8 @@ resource deployPrWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if 
       [string] $branch,
       [string] $prNumber
     )
+    # this makes it easier for us to read the log output
+    $PSStyle.OutputRendering = [System.Management.Automation.OutputRendering]::PlainText;
     try{
       # download artifact from pipeline run
       $workflowArtifactUrl = "$($githubRuntimeApiUrl)_apis/pipelines/workflows/$githubRunId/artifacts";
@@ -77,7 +79,7 @@ resource deployPrWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if 
       Set-Location ./artifact/
       $secretProperties = Get-AzStaticWebAppSecret -Name $staticWebAppName -ResourceGroupName $resourceGroupName
       $token = $secretProperties.Property.Item("apiKey")
-      ./deploy.ps1 -Token $token -appBuildOutput ./frontend.zip -apiBuildOutput ./api.zip -apiFramework "dotnetisolated" -apiFrameworkVersion "7.0" -workingDir $pwd -branchName $branch -envrionmentName $prNumber -Verbose
+      ./deploy.ps1 -Token $token -appBuildOutput ./frontend.zip -apiBuildOutput ./api.zip -apiFramework "dotnetisolated" -apiFrameworkVersion "8.0" -workingDir $pwd -branchName $branch -envrionmentName $prNumber -Verbose
       # for azure Deployment Script output
       $DeploymentScriptOutputs = @{}
       $DeploymentScriptOutputs['staticWebUrl'] = "https://$((Get-AzStaticWebAppBuild -Name $staticWebAppName -ResourceGroupName $resourceGroupName -EnvironmentName $prNumber).Hostname)"
@@ -112,6 +114,8 @@ resource deployWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if (e
       [string] $staticWebAppName,
       [string] $resourceGroupName
     )
+    # this makes it easier for us to read the log output
+    $PSStyle.OutputRendering = [System.Management.Automation.OutputRendering]::PlainText;
     # take stable releases here
     $result = Invoke-RestMethod https://api.github.com/repos/codez-one/CZ.Azure.FileExchange/releases/latest -Headers @{"X-GitHub-Api-Version" = "2022-11-28" }
     $frontendDownloadUrl = ($result.assets | ? {$_.name -like 'Frontend.zip'}).browser_download_url;
@@ -127,7 +131,7 @@ resource deployWebApp 'Microsoft.Resources/deploymentScripts@2020-10-01' = if (e
     $secretProperties = Get-AzStaticWebAppSecret -Name $staticWebAppName -ResourceGroupName $resourceGroupName
     $token = $secretProperties.Property.Item("apiKey")
     $token.Substring(0,5)
-    ./deploy.ps1 -Token $token -appBuildOutput ./frontend.zip -apiBuildOutput ./api.zip -apiFramework "dotnetisolated" -apiFrameworkVersion "7.0" -workingDir $pwd -Verbose
+    ./deploy.ps1 -Token $token -appBuildOutput ./frontend.zip -apiBuildOutput ./api.zip -apiFramework "dotnetisolated" -apiFrameworkVersion "8.0" -workingDir $pwd -Verbose
     $DeploymentScriptOutputs = @{}
     $DeploymentScriptOutputs['staticWebUrl'] = "https://$((Get-AzStaticWebApp -Name $staticWebAppName -ResourceGroupName $resourceGroupName).DefaultHostname)"
     '''
