@@ -1,0 +1,3 @@
+# gets a new SAS token to upload a file
+GET http://localhost:7071/api/GenerateSas
+Accept: text/plain
