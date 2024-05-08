@@ -18,8 +18,7 @@
 		},
 		"ghcr.io/devcontainers/features/dotnet": {
 			"version": "7.0",
-			"additionalVersions": "6.0",
-			"runtimeOnly": false
+			"additionalVersions": "6.0"
 		},
 		"ghcr.io/jlaundry/devcontainer-features/azure-functions-core-tools": {
 
