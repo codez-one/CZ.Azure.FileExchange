@@ -23,7 +23,7 @@ jobs:
       - name: Publish Frontend
         run: dotnet publish -c Release ./src/CZ.Azure.FileExchange/ -o temp/frontend
       - name: Publish API
-        run: dotnet publish -c Release ./src/CZ.Azure.FileExchange.Api/ -o temp/api --runtime win-x86 --no-self-contained
+        run: dotnet publish -c Release ./src/CZ.Azure.FileExchange.Api/ -o temp/api --runtime win-x86 --self-contained
       - name: zip outputs
         shell: pwsh
         run: |
