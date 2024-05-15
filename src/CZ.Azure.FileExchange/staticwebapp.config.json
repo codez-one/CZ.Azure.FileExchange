@@ -1,5 +1,5 @@
 {
   "platform": {
-    "apiRuntime": "dotnet-isolated:7.0"
+    "apiRuntime": "dotnet-isolated:8.0"
   }
 }
