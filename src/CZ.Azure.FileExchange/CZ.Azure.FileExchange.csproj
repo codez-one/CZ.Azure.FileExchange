@@ -13,20 +13,13 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.0" PrivateAssets="all" />
   </ItemGroup>
 
-  <!-- SASS options - Temporarily disabled due to compilation issues
-  <PropertyGroup>
-    <DartSassOutputStyle>compressed</DartSassOutputStyle>
-    <DartSassOutputStyle Condition="'$(Configuration)' == 'Debug'">expanded</DartSassOutputStyle>
-    <DartSassOutputLevel>verbose</DartSassOutputLevel>
-    <DartSassMessageLevel>High</DartSassMessageLevel>
-  </PropertyGroup>
-  <ItemGroup>
-    <SassFile Include="Client/**/*.scss" />
-  </ItemGroup>
-
-  <Target Name="copy_sass_to_the_right_place" AfterTargets="DartSass_Build">
-    <Copy SourceFiles="Client/styles/main.css" DestinationFolder="wwwroot/client/" />
+  <!-- Custom SASS compilation using native sass command -->
+  <Target Name="CompileSass" BeforeTargets="Build">
+    <Exec Command="sass Client/styles/main.scss Client/styles/main.css --style=expanded" 
+          ContinueOnError="false" 
+          WorkingDirectory="$(MSBuildProjectDirectory)" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)/Client/styles/main.css" 
+          DestinationFolder="$(MSBuildProjectDirectory)/wwwroot/client/" />
   </Target>
-  -->
 
 </Project>
