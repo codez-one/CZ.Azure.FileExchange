@@ -7,13 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- <PackageReference Include="DartSassBuilder" Version="1.0.0" /> -->
+    <!-- <PackageReference Include="DartSassBuilder" Version="1.1.0" /> -->
     <PackageReference Include="Azure.Storage.Blobs" Version="12.23.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.0" PrivateAssets="all" />
   </ItemGroup>
 
-  <!-- SASS options 
+  <!-- SASS options - Temporarily disabled due to compilation issues
   <PropertyGroup>
     <DartSassOutputStyle>compressed</DartSassOutputStyle>
     <DartSassOutputStyle Condition="'$(Configuration)' == 'Debug'">expanded</DartSassOutputStyle>
