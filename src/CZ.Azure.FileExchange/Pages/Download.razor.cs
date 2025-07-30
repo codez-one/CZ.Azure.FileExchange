@@ -1,11 +1,37 @@
 namespace CZ.Azure.FileExchange.Pages;
 using global::Azure.Storage.Blobs;
 using global::Azure.Storage.Blobs.Models;
+using Microsoft.Extensions.Logging;
 
 public partial class Download
 {
+    // High-performance logging using LoggerMessage
+    private static readonly Action<ILogger, string, AccessTier?, Exception?> LogBlobNotInArchive =
+        LoggerMessage.Define<string, AccessTier?>(
+            LogLevel.Warning,
+            new EventId(1, nameof(LogBlobNotInArchive)),
+            "User tried to retrieve a blob from archive, but the blob was not in the archive tier. The blob: '{BlobName}', tier: '{AccessTier}'");
+
+    private static readonly Action<ILogger, string, string?, Exception?> LogBlobRetrievalStatus =
+        LoggerMessage.Define<string, string?>(
+            LogLevel.Warning,
+            new EventId(2, nameof(LogBlobRetrievalStatus)),
+            "The blob '{BlobName}' can't be retrieved because the status is {ArchiveStatus}.");
+
+    private static readonly Action<ILogger, string, Exception?> LogMultipleBlobsFound =
+        LoggerMessage.Define<string>(
+            LogLevel.Warning,
+            new EventId(3, nameof(LogMultipleBlobsFound)),
+            "The blob '{BlobName}' exist more then ones. 🫨");
+
+    private static readonly Action<ILogger, string, Exception?> LogBlobNotFound =
+        LoggerMessage.Define<string>(
+            LogLevel.Warning,
+            new EventId(4, nameof(LogBlobNotFound)),
+            "The blob '{BlobName}' doesn't exist. 🫨");
+
     private string Code { get; set; } = string.Empty;
-    private readonly List<BlobItem> blobs = new();
+    private readonly List<BlobItem> blobs = [];
     private Uri? sasUrl;
     private async Task LoadFiles()
     {
@@ -51,9 +77,7 @@ public partial class Download
 
         if (blob.Properties.AccessTier != AccessTier.Archive)
         {
-            this.logger.LogWarning($"User tried to retrieve a blob from archive, " +
-            $"but the blob was not in the archive tier." +
-            $"The blob: '{blob.Name}', tier: '{blob.Properties.AccessTier}'");
+            LogBlobNotInArchive(this.logger, blob.Name, blob.Properties.AccessTier, null);
             /// TODO: make a user visible message that a not archived blob can't be retrieved
             return;
         }
@@ -65,8 +89,7 @@ public partial class Download
             string.Equals(blobProperties.Value.ArchiveStatus, "rehydrate-pending-to-cool", StringComparison.OrdinalIgnoreCase)
         )
         {
-            this.logger.LogWarning($"The blob '{blob.Name}' can't be retrieved because the " +
-            $"status is {blobProperties.Value.ArchiveStatus}.");
+            LogBlobRetrievalStatus(this.logger, blob.Name, blobProperties.Value.ArchiveStatus, null);
             /// TODO: make a user visible message that the blob can't be double retrieved
             /// and return
         }
@@ -81,7 +104,7 @@ public partial class Download
                 if (foundBlobs > 0)
                 {
                     // TODO: something weird happend. We found for our blob we are looking for, more then one real blob.
-                    this.logger.LogWarning($"The blob '{blobName}' exist more then ones. 🫨");
+                    LogMultipleBlobsFound(this.logger, blobName, null);
                 }
                 this.blobs[blobListEntryLocation] = updatedBlob;
             }
@@ -89,7 +112,7 @@ public partial class Download
         else
         {
             //TODO: some odd state happend. We change the state of the blob but we can't find it in our blobs list
-            this.logger.LogWarning($"The blob '{blobName}' doesn't exist. 🫨");
+            LogBlobNotFound(this.logger, blobName, null);
         }
 
 

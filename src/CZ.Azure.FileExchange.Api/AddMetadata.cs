@@ -35,7 +35,7 @@ public class AddMetadata
         var events = EventGridEvent.ParseMany(eventsRaw);
         var relevantChangeTierEvents = events.Where(e =>
             e.EventType == BlobChanged &&
-            e.Data.ToObjectFromJson<BlobTierChangeEvent>().api == SetBlobTier
+            e.Data.ToObjectFromJson<BlobTierChangeEvent>()?.api == SetBlobTier
             );
 
         var relevantValidationEvents = events.Where(e =>
@@ -47,13 +47,16 @@ public class AddMetadata
             foreach (var tierChangedEvent in relevantChangeTierEvents)
             {
                 var data = tierChangedEvent.Data.ToObjectFromJson<BlobTierChangeEvent>();
+                if (data?.url == null) continue;
+                
                 var blobUri = new Uri(data.url);
                 var containerName = blobUri.Segments.Skip(1).First()[..^1];
                 var containerClient = blobService.GetBlobContainerClient(containerName);
                 var blobClient = containerClient.GetBlobClient(blobUri.Segments.Last());
-                await blobClient.SetMetadataAsync(new Dictionary<string, string>() {
+                await blobClient.SetMetadataAsync(new Dictionary<string, string>
+                {
                      // That is important to change the 'x-ms-last-access-time'
-                    { "lastTimeRetrieved", tierChangedEvent.EventTime.ToString(CultureInfo.CurrentCulture)}
+                    ["lastTimeRetrieved"] = tierChangedEvent.EventTime.ToString(CultureInfo.CurrentCulture)
                 });
             }
         }
@@ -92,20 +95,20 @@ public class AddMetadata
 
     public class BlobTierChangeEvent
     {
-        public string api { get; set; }
-        public string requestId { get; set; }
-        public string eTag { get; set; }
-        public string contentType { get; set; }
+        public required string api { get; set; }
+        public required string requestId { get; set; }
+        public required string eTag { get; set; }
+        public required string contentType { get; set; }
         public int contentLength { get; set; }
-        public string blobType { get; set; }
-        public string url { get; set; }
-        public string sequencer { get; set; }
-        public Storagediagnostics storageDiagnostics { get; set; }
+        public required string blobType { get; set; }
+        public required string url { get; set; }
+        public required string sequencer { get; set; }
+        public required Storagediagnostics storageDiagnostics { get; set; }
     }
 
     public class Storagediagnostics
     {
-        public string batchId { get; set; }
+        public required string batchId { get; set; }
     }
 
 }
